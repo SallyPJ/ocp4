@@ -1,10 +1,11 @@
-from views.menu import display_main_menu
 
+from controllers.main_controller import MainController
 
+def main():
+    controller = MainController()
+    controller.run()
 
-# Programme principal
 if __name__ == "__main__":
-    while True:
-        display_main_menu()
+    main()
 
 

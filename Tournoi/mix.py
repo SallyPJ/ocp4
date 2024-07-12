@@ -7,7 +7,6 @@ import uuid
 LIST_OF_PLAYERS = "players.json"
 LIST_OF_TOURNAMENTS = "tournaments.json"
 
-
 class Player:
     def __init__(self, last_name, first_name, date_of_birth, national_id):
         self.last_name = last_name
@@ -63,13 +62,11 @@ def get_player_info():
 
 def display_players():
     try:
-        players = load_players()
-        if not players:
-            print("Aucun joueur trouvé.")
-            return
-        print("Liste des joueurs :")
-        for i, player in enumerate(players, start=1):
-            print(f"{i}. Nom de famille: Nom de famille: {player.last_name}, Prénom: {player.first_name}, Date de naissance: {player.date_of_birth}, Identifiant: {player.national_id}")
+        with open(LIST_OF_PLAYERS, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+            print("Liste des joueurs :")
+            for i,item in enumerate(data, start=1):
+                print(f"{i}. Nom de famille: {item['last_name']}, Prénom: {item['first_name']}, Date de naissance: {item['date_of_birth']}, Identifiant :{item['national_id']}")
     except FileNotFoundError:
         print("Liste des joueurs non trouvé")
 
@@ -83,7 +80,7 @@ class Tournament:
         self.number_of_rounds = number_of_rounds
         self.description = description
         self.number_of_players = number_of_players
-        self.selected_players = []
+
 
     def to_dict(self):
         # Convertit un objet tournament en dictionnaire pour faciliter la sérialisation JSON
@@ -114,16 +111,18 @@ class Tournament:
         print(f"Description : {self.description}")
         print(f"Nombre de joueurs : {self.number_of_players}")
 
-    def add_player(self, player):
-        self.selected_players.append(player)
+    def run_tournament(self):
+        for round_num in range(1, self.number_of_rounds + 1):
+            print(f"Round {round_num}:")
+            round_obj = Round(self.players)
+            round_obj.play_first_round()
+            round_obj.update_scores()
+            self.rounds.append(round_obj)
 
-    def remove_player(self, player):
-        self.selected_players.remove(player)
-
-    def display_selected_players(self):
-        print("Joueurs sélectionnés :")
-        for i, player in enumerate(self.selected_players, start=1):
-            print(f"{i}. {player.last_name} {player.first_name}")
+    def display_final_scores(self):
+        print("Scores finaux:")
+        for player in self.players:
+            print(player)
     @staticmethod
     def load_tournaments():
         tournaments = []
@@ -192,15 +191,14 @@ def get_tournament_info():
 
 
 def select_player(players):
-
     while True:
         try:
             choix = int(input("Entrez le numéro du joueur que vous souhaitez sélectionner : "))
             if 1 <= choix <= len(players):
-                selected_player = players[choix - 1]
+                joueur_selectionne = players[choix - 1]
                 print(
-                    f"Vous avez sélectionné le joueur : {selected_player.last_name} {selected_player.first_name}")
-                return selected_player  # Retourne le joueur sélectionné
+                    f"Vous avez sélectionné le joueur : {joueur_selectionne['last_name']} {joueur_selectionne['first_name']}")
+                return joueur_selectionne  # Retourne le joueur sélectionné
             else:
                 print(f"Veuillez entrer un numéro entre 1 et {len(players)}.")
         except ValueError:
@@ -231,8 +229,8 @@ class Menu :
 
     @staticmethod
     def display_tournament_menu():
-        print("1.Ajouter un nouveau joueur")
-        print("2.Sélectionner des joueurs déjà enregistrés")
+        print("1.Sélectionner des joueurs enregistrés")
+        print("2.Ajouter un nouveau joueur")
         print("3.Lancer le tournoi")
         choice = input("Choisissez une option : ")
 
@@ -241,15 +239,7 @@ class Menu :
             add_player(last_name, first_name, date_of_birth, national_id)
             print("Joueur ajouté avec succès !")
         elif choice == '2':
-            players = load_players()
             display_players()
-            selected_player = select_player(players)
-            if selected_player:
-                Tournament.add_player(selected_player)
-                print(f"Joueur sélectionné : {selected_player.last_name} {selected_player.first_name}")
-            else:
-                print("Aucun joueur sélectionné.")
-
         elif choice == '3':
             get_tournament_info()
         else:
