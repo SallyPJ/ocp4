@@ -3,38 +3,42 @@ import os
 from models.player import Player
 from models.tournament import Tournament
 
-PLAYERS_FILE = "players.json"
-TOURNAMENTS_FILE = "tournaments.json"
+class Database:
+    PLAYERS_FILE = "players.json"
+    TOURNAMENTS_FILE = "tournaments.json"
 
-def load_players():
-    if not os.path.exists(PLAYERS_FILE):
-        # Create the file with an empty list if it does not exist
-        with open(PLAYERS_FILE, 'w', encoding='utf-8') as file:
-            json.dump([], file)
-        return []
-    else:
-        with open(PLAYERS_FILE, 'r', encoding='utf-8') as file:
+    @classmethod
+    def load_players(cls):
+        # Load players from JSON file
+        if not os.path.exists(cls.PLAYERS_FILE):
+            with open(cls.PLAYERS_FILE, 'w', encoding='utf-8') as file:
+                json.dump([], file)
+            return []
+        with open(cls.PLAYERS_FILE, 'r', encoding='utf-8') as file:
             data = json.load(file)
-            return [Player.from_dict(player) for player in data]# Ajout message d'erreur json empty ?
+            return [Player.from_dict(player) for player in data]
 
-# Fonction pour enregistrer la base de données des joueurs
-def save_players(players):
-    with open(PLAYERS_FILE, 'w', encoding='utf-8') as file:
-        json.dump([player.to_dict() for player in players], file, ensure_ascii=False, indent=4)
+    @classmethod
+    def save_players(cls, players):
+        # Save players to JSON file
+        with open(cls.PLAYERS_FILE, 'w', encoding='utf-8') as file:
+            json.dump([player.to_dict() for player in players], file, ensure_ascii=False, indent=4)
 
-def load_tournaments():
-    tournaments = []
-    try:
-        with open(TOURNAMENTS_FILE, 'r', encoding='utf-8') as file:
-            data = json.load(file)
-            tournaments = [Tournament.from_dict(tournament_data) for tournament_data in data]
-    except FileNotFoundError:
-        print("Fichier de tournois non trouvé.")
-    except json.JSONDecodeError:
-        print("Erreur de décodage JSON.")
-    return tournaments
+    @classmethod
+    def load_tournaments(cls):
+        # Load tournaments from JSON file
+        if not os.path.exists(cls.TOURNAMENTS_FILE):
+            return []
+        try:
+            with open(cls.TOURNAMENTS_FILE, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+                return [Tournament.from_dict(tournament) for tournament in data]
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"Erreur lors du chargement des tournois : {e}")
+            return []
 
-
-def save_tournament(tournaments):
-    with open(TOURNAMENTS_FILE, 'w', encoding='utf-8') as file:
-        json.dump([tournament.to_dict() for tournament in tournaments], file, ensure_ascii=False, indent=4)
+    @classmethod
+    def save_tournament(cls, tournaments):
+        # Save tournaments to JSON file
+        with open(cls.TOURNAMENTS_FILE, 'w', encoding='utf-8') as file:
+            json.dump([tournament.to_dict() for tournament in tournaments], file, ensure_ascii=False, indent=4)
