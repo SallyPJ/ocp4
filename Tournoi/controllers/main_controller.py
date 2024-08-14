@@ -2,9 +2,9 @@ import sys
 from controllers.tournament_controller import TournamentController
 from controllers.player_controller import PlayerController
 from views.main_view import MainView
-from views.player_view import PlayerView
-from views.tournament_view import TournamentView
 from models.database import Database
+from views.report_view import ReportView
+from controllers.report_controller import ReportController
 
 class MainController:
     def __init__(self):
@@ -12,6 +12,9 @@ class MainController:
         self.main_view = MainView()
         self.player_controller = PlayerController()
         self.tournament_controller = TournamentController()
+        self.database = Database()
+        self.report_view = ReportView()
+        self.report_controller = ReportController()
 
     def run(self):
         # Main loop for menu
@@ -22,12 +25,11 @@ class MainController:
                 player_details = self.main_view.get_player_details()
                 self.player_controller.create_player(*player_details)
             elif choice == '2':
-                # Display list of registered players
-                players = self.player_controller.load_players()
-                self.main_view.display_players(players)
-            elif choice == '3':
                 # Create a new tournament
                 self.tournament_controller.create_tournament()
+            elif choice == '3':
+                # Display list of registered players
+                self.report_controller.manage_reports()
             elif choice == '4':
                 # Exit application
                 sys.exit()

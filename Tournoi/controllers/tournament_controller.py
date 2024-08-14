@@ -2,6 +2,7 @@ from models.tournament import Tournament
 from models.database import Database
 from controllers.player_controller import PlayerController
 from views.tournament_view import TournamentView
+from views.player_view import PlayerView
 
 class TournamentController:
     def __init__(self):
@@ -9,12 +10,13 @@ class TournamentController:
         self.tournament_view = TournamentView()
         self.database = Database()
         self.player_controller = PlayerController()
+        self.player_view = PlayerView()
 
     def create_tournament(self):
         # Create a new tournament
         details = self.tournament_view.get_tournament_details()
         number_of_rounds = self.tournament_view.get_round_count()
-        number_of_players = self.tournament_view.get_player_count()
+        number_of_players = self.player_view.get_player_count()
         tournament = Tournament(*details, number_of_rounds, number_of_players)
         self.manage_tournament(tournament)
 
@@ -24,8 +26,9 @@ class TournamentController:
             choice = self.tournament_view.show_tournament_menu(tournament)
             if choice == '1':
                 # Select players for the tournament
-                players = self.player_controller.load_players()
-                self.tournament_view.display_players(players)
+                loaded_players = self.database.load_players()
+                players = sorted(loaded_players)  # Le tri utilise la méthode __lt__ de la classe Player
+                self.player_view.display_players_list(players)
                 selected_players = self.select_multiple_players(players, tournament)
                 if selected_players:
                     tournament.selected_players.extend(selected_players)
@@ -56,7 +59,7 @@ class TournamentController:
     def select_multiple_players(self, players, tournament):
         # Select multiple players for the tournament
         while True:
-            self.tournament_view.display_players(players)
+            self.player_view.display_players_list(players)
             player_choices = self.tournament_view.select_players_input()
             selected_players = self.process_player_choices(player_choices, players)
 
@@ -78,3 +81,21 @@ class TournamentController:
         except ValueError:
             self.tournament_view.display_message("Entrée invalide. Veuillez entrer des numéros valides.")
             return []
+
+
+
+    def process_tournament_choices(self, choices,tournaments):
+        """
+        Traite les choix de tournois basés sur l'entrée utilisateur.
+        """
+        try:
+            indices = [int(choice.strip()) - 1 for choice in choices.split(',')]
+
+            selected_tournaments = [tournaments[idx] for idx in indices if 0 <= idx < len(tournaments)]
+            if not selected_tournaments:
+                self.tournament_view.display_message("Aucun tournoi sélectionné.")
+            return selected_tournaments
+        except ValueError:
+            self.tournament_view.display_message("Entrée invalide. Veuillez entrer des numéros valides.")
+            return []
+
