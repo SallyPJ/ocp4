@@ -28,7 +28,6 @@ class TournamentController:
                 # Select players for the tournament
                 loaded_players = self.database.load_players()
                 players = sorted(loaded_players)  # Le tri utilise la méthode __lt__ de la classe Player
-                self.player_view.display_players_list(players)
                 selected_players = self.select_multiple_players(players, tournament)
                 if selected_players:
                     tournament.selected_players.extend(selected_players)
