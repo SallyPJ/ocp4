@@ -19,6 +19,7 @@ class Round:
     def from_dict(cls, data,tournament):
         matches = [Match.from_dict(match_data) for match_data in data["matches"]]
         return cls(tournament,data["round_number"], matches)
+
     def create_pairs(self):
         if self.is_first_round:
             self.create_random_pairs()
