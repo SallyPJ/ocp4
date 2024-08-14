@@ -14,3 +14,11 @@ class PlayerView:
         national_id = input("Entrer le numéro de licence FFE: ")
         return last_name, first_name, date_of_birth, national_id
 
+    def display_players_list(self, players):
+        print("Liste des joueurs enregistrés par ordre alphabétique :")
+        for index, player in enumerate(players):
+            print(f"{index + 1}. {player}")
+
+    def get_player_count(self):
+        # Get number of players from user input
+        return int(input("Entrer le nombre de joueurs: "))

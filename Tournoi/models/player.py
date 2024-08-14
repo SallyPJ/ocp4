@@ -10,9 +10,10 @@ class Player:
         self.total_points = 0
         self.opponents = []
 
-
+    def __lt__(self, other):
+        return self.last_name.lower() < other.last_name.lower()
     def __str__(self):
-        return f"{self.id} {self.last_name} {self.first_name} {self.date_of_birth} {self.national_id}"
+        return f"{self.last_name} {self.first_name} {self.date_of_birth} {self.national_id}"
 
     def to_dict(self):
         # Convert Player object to dictionary

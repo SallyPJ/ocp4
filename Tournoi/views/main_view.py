@@ -3,8 +3,8 @@ class MainView:
         # Display main menu
         print("Menu principal:")
         print("1. Enregister un nouveau joueur")
-        print("2. Afficher la liste des joueurs enregistrés")
-        print("3. Créer un tournoi")
+        print("2. Créer un tournoi")
+        print("3. Afficher les rapports")
         print("4. Quitter")
         return input("Choisir une option: ")
 
@@ -15,11 +15,7 @@ class MainView:
         player_view = PlayerView()
         return player_view.get_player_details()
 
-    def display_players(self, players):
-        # Display list of players
-        print("Liste des joueurs enregistrés:")
-        for player in players:
-            print(player)
+
 
 
 

@@ -1,5 +1,8 @@
 import uuid
 from models.round import Round
+from models.player import Player
+
+
 
 class Tournament:
     def __init__(self, name: str, location: str, start_date: str, end_date: str, number_of_rounds: int,
@@ -12,6 +15,8 @@ class Tournament:
         self.number_of_rounds = number_of_rounds
         self.number_of_players = number_of_players
         self.selected_players = []
+        self.rounds = []
+
 
     def check_players_count(self) :
         return len(self.selected_players) == self.number_of_players
@@ -27,6 +32,11 @@ class Tournament:
             round = Round(self, round_number=i + 1, is_first_round=is_first_round)
             round.play_round()
             self.process_round_results(round)
+            self.rounds.append(round)  # Ajouter le round au tournoi
+
+
+
+
 
     def process_round_results(self, round):
         results = round.get_results()
@@ -63,15 +73,23 @@ class Tournament:
             "start_date": self.start_date,
             "end_date": self.end_date,
             "number_of_rounds": self.number_of_rounds,
-            "number_of_players": self.number_of_players
+            "number_of_players": self.number_of_players,
+            "selected_players": [player.to_dict() for player in self.selected_players],  # Convert players to dict
+            "rounds" : [round.to_dict() for round in self.rounds]
         }
 
     @classmethod
     def from_dict(cls, data):
         # Create Tournament object from dictionary
-        return cls(data["name"],
+        tournament = cls(data["name"],
                    data["location"],
                    data["start_date"],
                    data["end_date"],
                    data["number_of_rounds"],
-                   data["number_of_players"])
+                   data["number_of_players"],
+            )
+        tournament.selected_players = [Player.from_dict(player_data) for player_data in data.get("selected_players", [])]
+        tournament.rounds = [Round.from_dict(round_data,tournament) for round_data in data.get("rounds", [])]
+        return tournament
+
+

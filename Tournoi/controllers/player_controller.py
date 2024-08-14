@@ -15,28 +15,7 @@ class PlayerController:
         players.append(new_player)
         self.database.save_players(players)
 
-    def load_players(self):
-        # Load players from the database
-        return self.database.load_players()
 
 
 
-
-    def select_players(self, expected_player_count):
-        while True:
-            self.player_view.display_players(self.players)
-            player_choices = self.view.select_players_input()
-            selected_players = self.process_player_choices(player_choices)
-
-            if len(selected_players) != expected_player_count:
-                self.view.display_message(
-                    f"Erreur : Vous devez sélectionner exactement {expected_player_count} joueurs.")
-            else:
-                self.view.display_selected_players(selected_players)
-                confirmation = self.view.confirm_selection()
-                if confirmation.lower() == 'o':
-                    self.view.display_message("Tous les joueurs ont été sélectionnés.")
-                    break
-                else:
-                    self.view.display_message("Réinitialisation de la sélection des joueurs.")
 
