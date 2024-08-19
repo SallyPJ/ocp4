@@ -29,12 +29,12 @@ class ReportController:
             elif choice == '2':
                 # Display tournaments list
                 tournaments = self.database.load_tournaments()
-                self.tournament_view.display_tournaments_list(tournaments)
+                uuid_index_map = self.tournament_view.display_tournaments_list(tournaments)
                 user_input = self.tournament_view.get_tournament_selection()
-                selected_tournaments = self.tournament_controller.process_tournament_choices(user_input,tournaments)
+                selected_tournaments = self.tournament_controller.process_tournament_choices(user_input, tournaments, uuid_index_map)
                 for tournament in selected_tournaments:
                     self.tournament_view.display_all_tournament_details(tournament)
-                    #self.report_view.display_tournament_players(tournaments)
+
             elif choice == '3':
                 # Display the list of all tournaments
                 break

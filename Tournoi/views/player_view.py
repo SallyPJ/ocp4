@@ -1,4 +1,7 @@
 from utils import date_utils
+from tabulate import tabulate
+
+
 
 class PlayerView:
     def get_player_details(self):
@@ -11,13 +14,15 @@ class PlayerView:
                 break
             else:
                 print("La date de début n'est pas valide. Veuillez entrer la date au format JJ/MM/AAAA.")
-        national_id = input("Entrer le numéro de licence FFE: ")
+        national_id = input("Entrer l'identifiant national d'échec: ")
         return last_name, first_name, date_of_birth, national_id
 
     def display_players_list(self, players):
-        print("Liste des joueurs enregistrés par ordre alphabétique :")
-        for index, player in enumerate(players):
-            print(f"{index + 1}. {player}")
+        print("Liste des joueurs enregistrés :")
+        table = [[index + 1, player.national_id, player.last_name, player.first_name, player.date_of_birth ] for index, player in
+                 enumerate(players)]
+        headers = ["No", "Identifiant", "Nom", "Prénom", "Date de naissance", ]
+        print(tabulate(table, headers, tablefmt="pretty", colalign=("left")))
 
     def get_player_count(self):
         # Get number of players from user input

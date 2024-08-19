@@ -6,7 +6,7 @@ from models.player import Player
 
 class Tournament:
     def __init__(self, name: str, location: str, start_date: str, end_date: str, number_of_rounds: int,
-                 number_of_players: int):
+                 number_of_players: int, description=None):
         self.reference = str(uuid.uuid4())
         self.name = name
         self.location = location
@@ -14,6 +14,7 @@ class Tournament:
         self.end_date = end_date
         self.number_of_rounds = number_of_rounds
         self.number_of_players = number_of_players
+        self.description = description
         self.selected_players = []
         self.rounds = []
 
@@ -32,7 +33,7 @@ class Tournament:
             round = Round(self, round_number=i + 1, is_first_round=is_first_round)
             round.play_round()
             self.process_round_results(round)
-            self.rounds.append(round)  # Ajouter le round au tournoi
+            #self.rounds.append(round)  # Ajouter le round au tournoi
 
 
 
@@ -68,26 +69,31 @@ class Tournament:
     def to_dict(self):
         # Convert Tournament object to dictionary
         return {
+            "reference": self.reference,
             "name": self.name,
             "location": self.location,
             "start_date": self.start_date,
             "end_date": self.end_date,
             "number_of_rounds": self.number_of_rounds,
             "number_of_players": self.number_of_players,
+            "description": self.description,
             "selected_players": [player.to_dict() for player in self.selected_players],  # Convert players to dict
-            "rounds" : [round.to_dict() for round in self.rounds]
+            "rounds": [round.to_dict() for round in self.rounds]
         }
 
     @classmethod
     def from_dict(cls, data):
-        # Create Tournament object from dictionary
-        tournament = cls(data["name"],
-                   data["location"],
-                   data["start_date"],
-                   data["end_date"],
-                   data["number_of_rounds"],
-                   data["number_of_players"],
+        # Create Tournament object from dictionary, can return default value
+        tournament = cls(
+            data.get("name", "Unknown"),
+            data.get("location", "Unknown"),
+            data.get("start_date", "Unknown"),
+            data.get("end_date", "Unknown"),
+            data.get("number_of_rounds", 0),
+            data.get("number_of_players", 0),
+            data.get("description", "")
             )
+        tournament.reference = data.get("reference", str(uuid.uuid4()))
         tournament.selected_players = [Player.from_dict(player_data) for player_data in data.get("selected_players", [])]
         tournament.rounds = [Round.from_dict(round_data,tournament) for round_data in data.get("rounds", [])]
         return tournament

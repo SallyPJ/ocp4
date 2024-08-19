@@ -28,7 +28,6 @@ class TournamentController:
                 # Select players for the tournament
                 loaded_players = self.database.load_players()
                 players = sorted(loaded_players)  # Le tri utilise la méthode __lt__ de la classe Player
-                self.player_view.display_players_list(players)
                 selected_players = self.select_multiple_players(players, tournament)
                 if selected_players:
                     tournament.selected_players.extend(selected_players)
@@ -44,6 +43,8 @@ class TournamentController:
                     self.database.save_tournament(tournaments)
                     tournament.run_tournament()
                     tournament.display_final_scores()
+                    self.tournament_view.get_tournament_feedbacks(tournament)
+                    self.database.update_tournament(tournament)
                     break
                 else:
                     self.tournament_view.display_message(f"Nombre incorrect de joueurs sélectionnés.\n"
@@ -84,14 +85,19 @@ class TournamentController:
 
 
 
-    def process_tournament_choices(self, choices,tournaments):
+    def process_tournament_choices(self, user_input,tournaments, uuid_index_map):
         """
         Traite les choix de tournois basés sur l'entrée utilisateur.
         """
         try:
-            indices = [int(choice.strip()) - 1 for choice in choices.split(',')]
+            indices = [int(choice.strip()) - 1 for choice in user_input.split(',')]
 
-            selected_tournaments = [tournaments[idx] for idx in indices if 0 <= idx < len(tournaments)]
+            # Trouver les UUID correspondant aux indices
+            selected_uuids = {uuid_index_map.get(idx + 1) for idx in indices if 0 <= idx < len(tournaments)}
+
+            # Trouver les tournois correspondant aux UUID sélectionnés
+            selected_tournaments = [tournament for tournament in tournaments
+                                    if tournament.reference in selected_uuids]
             if not selected_tournaments:
                 self.tournament_view.display_message("Aucun tournoi sélectionné.")
             return selected_tournaments

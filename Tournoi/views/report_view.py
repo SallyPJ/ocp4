@@ -8,13 +8,6 @@ class ReportView:
         print("4. Quitter")
         return input("Choisir une option: ")
 
-    def select_tournament_report(self):
-        return input("Choisir un tournoi: ")
-
-    def show_tournament_details_menu(self):
-       print("Menu des tournois")
-       print("1. Voir")
-
 
     def display_tournament_rounds_and_matches(self, rounds):
         for round in rounds:

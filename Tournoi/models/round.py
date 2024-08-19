@@ -67,8 +67,11 @@ class Round:
                     paired = True
                     break
             if not paired:
-                # If no valid pair is found, add player1 back to the list
-                available_players.append(player1)
+                # Si aucune paire valide n'est trouvée, appairer quand même les deux premiers joueurs disponibles
+                player2 = available_players.pop(0)
+                self.pairs.append(Match(player1, player2, self.round_number))
+                player1.add_opponent(player2)
+                player2.add_opponent(player1)
 
     def has_played_before(self, player1, player2):
         # Vérifie si les deux joueurs ont déjà joué l'un contre l'autre

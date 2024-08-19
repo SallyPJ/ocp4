@@ -10,7 +10,7 @@ class MainView:
 
     def get_player_details(self):
         # Get player details
-        print("Register a new player:")
+        print("Enregistrer un nouveau joueur:")
         from views.player_view import PlayerView
         player_view = PlayerView()
         return player_view.get_player_details()

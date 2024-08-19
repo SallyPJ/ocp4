@@ -2,6 +2,7 @@ import json
 import os
 from models.player import Player
 from models.tournament import Tournament
+from tinydb import TinyDB, Query
 
 class Database:
     PLAYERS_FILE = "players.json"
@@ -42,3 +43,18 @@ class Database:
         # Save tournaments to JSON file
         with open(cls.TOURNAMENTS_FILE, 'w', encoding='utf-8') as file:
             json.dump([tournament.to_dict() for tournament in tournaments], file, ensure_ascii=False, indent=4)
+
+    @classmethod
+    def update_tournament(cls, tournament):
+        tournaments = cls.load_tournaments()
+
+        # Rechercher et mettre à jour le tournoi dans la liste
+        for i, existing_tournament in enumerate(tournaments):
+            if existing_tournament.reference == tournament.reference:
+                tournaments[i] = tournament
+                cls.save_tournament(tournaments)
+                return
+
+        # Si aucun tournoi n'a été trouvé, lever une exception
+        raise ValueError(
+            f"Le tournoi avec la référence {tournament.reference} n'a pas été trouvé et donc pas mis à jour.")

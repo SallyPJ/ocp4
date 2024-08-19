@@ -1,4 +1,5 @@
 from utils import date_utils
+from tabulate import tabulate
 
 
 class TournamentView:
@@ -21,9 +22,11 @@ class TournamentView:
                 break
             else:
                 print("La date de fin n'est pas valide. Veuillez entrer la date au format JJ/MM/AAAA.")
-
         return name, location, start_date, end_date
-
+    def get_tournament_feedbacks(self,tournament) :
+        feedback = input("Entrer vos remarques ou commentaires généraux sur le tournoi:")
+        tournament.description = feedback if feedback else "Aucune remarque disponible."
+        print(f"Debug: Description updated to '{tournament.description}'")
     def get_round_count(self, default_rounds: int = 4) -> int:
         """
                 Prompts the user for the number of rounds and validates the input.
@@ -57,22 +60,41 @@ class TournamentView:
     def show_tournament_menu(self, tournament):
         # Display tournament management menu
         print("Menu du tournoi:")
-        print(f"1. Sélectionner des joueurs pour le tournoi ({tournament.number_of_players - len(tournament.selected_players)})")
+        print(f"1. Sélectionner des joueurs pour le tournoi ({tournament.number_of_players - len(tournament.selected_players)} joueurs à sélectionner)")
         print("2. Débuter le tournoi")
         print("3. Menu principal")
         return input("Choisissez une option: ")
 
     def display_tournament_details(self, tournament):
         if tournament:
-            print(f"Tournoi : {tournament.name}")
-            print(f"Dates : {tournament.start_date} - {tournament.end_date}")
+            print(f"Tournoi: {tournament.name}")
+            print(f"Dates: {tournament.start_date} - {tournament.end_date}")
         else:
             print("Tournoi non trouvé.")
 
     def display_tournaments_list(self, tournaments):
-        print("Liste de tous les tournois :")
-        for index, tournament in enumerate(tournaments):
-            print(f"{index + 1}.{tournament.name} - {tournament.start_date} à {tournament.end_date}")
+        """
+        Displays the list of tournaments sorted by start date.
+        """
+        # Sort tournaments by start date
+        tournaments_sorted = sorted(tournaments, key=lambda t: t.start_date)
+
+        # Prepare the data for the table and UUID index map
+        table = []
+        uuid_index_map = {}
+        for index, tournament in enumerate(tournaments_sorted):
+            table.append([index + 1, tournament.name, tournament.start_date, tournament.end_date])
+            uuid_index_map[index + 1] = tournament.reference
+
+        # Define the table headers
+        headers = ["No", "Nom", "Date de début", "Date de fin" ]
+
+        # Print the table
+        print("Liste de tous les tournois:")
+        print(tabulate(table, headers, tablefmt="pretty", colalign=("left","left","left","left")))
+
+        # Return the UUID index map for future reference
+        return uuid_index_map
     def select_players_input(self):
         # Get user input for player selection
         return input("Entrez les numéros des joueurs que vous voulez sélectionner (séparés par des virgules): ")
@@ -85,7 +107,7 @@ class TournamentView:
 
     def confirm_selection(self):
         # Confirm player selection
-        return input("Confirmer la sélection ? (o/n) : ")
+        return input("Confirmer la sélection ? (o/n): ")
 
     def display_match_info(self):
         print(f"Round {self.round_number}: {self.player1.first_name} vs {self.player2.first_name}")
@@ -94,26 +116,39 @@ class TournamentView:
         """
         Demande à l'utilisateur de sélectionner un ou plusieurs tournois.
         """
-        return input("Entrez le numéro du tournoi sélectionné (ou plusieurs numéros séparés par des virgules) : ")
+        return input("Entrez le numéro d'un ou plusieurs tournois (séparés par une virgule): ")
 
     def display_all_tournament_details(self, tournament):
         """
-        Affiche les détails d'un tournoi.
+        Display tournament's details
         """
-        print(f"Détails du tournoi :")
-        print(f"Nom : {tournament.name}")
-        print(f"Lieu : {tournament.location}")
-        print(f"Dates : {tournament.start_date} - {tournament.end_date}")
-        print(f"Nombre de rounds : {tournament.number_of_rounds}")
-        print(f"Nombre de joueurs : {tournament.number_of_players}")
-        if hasattr(tournament, 'selected_players') and tournament.selected_players:
-            print(f"Joueurs du tournoi {tournament.name}:")
+        # Tournament details table
+        tournament_details = [
+            ["Nom", tournament.name],
+            ["Lieu", tournament.location],
+            ["Dates", f"{tournament.start_date} - {tournament.end_date}"],
+            ["Nombre de rounds", tournament.number_of_rounds],
+            ["Nombre de joueurs", tournament.number_of_players]
+        ]
+        print("Détails du tournoi :")
+        print(tabulate(tournament_details, tablefmt="grid", colalign=("left", "left")))
+
+        # Selected players details tablee
+        if hasattr(tournament, "selected_players") and tournament.selected_players:
+            print(f'Joueurs inscrits au tournoi "{tournament.name}":')
             players = sorted(tournament.selected_players, key=lambda player: player.last_name)
-            for player in players:
-                print(f"- {player.last_name} {player.first_name} {player.date_of_birth} {player.national_id}")
+            player_table = [
+                [player.national_id, player.last_name, player.first_name, player.date_of_birth]
+                for player in players
+            ]
+            player_headers = ["Identifiant National", "Nom", "Prénom", "Date de naissance"]
+
+            print(tabulate(player_table, player_headers, tablefmt="grid", colalign=("left", "left", "left", "left")))
         else:
             print(f"Le tournoi '{tournament.name}' n'a pas de joueurs sélectionnés.")
-        # Affichez plus de détails si nécessaire
+
+        print(f"Remarques et commentaires généraux sur le tournoi : {tournament.description} ")
+
 
     def display_tournament_rounds_and_matches(self, tournament):
         print(f"Tournoi : {tournament.name}")
