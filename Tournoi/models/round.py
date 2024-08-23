@@ -2,23 +2,30 @@ import random
 from models.match import Match
 
 class Round:
-    def __init__(self, tournament,round_number,matches=None, is_first_round=False):
+    def __init__(self, tournament, round_number, matches=None, is_first_round=False, start_time=None, end_time=None):
         self.players = tournament.selected_players
         self.pairs = []
         self.round_number = round_number
-        self.is_first_round = is_first_round
         self.matches = matches if matches is not None else []
+        self.is_first_round = is_first_round
+        self.start_time = start_time
+        self.end_time = end_time
+
 
     def to_dict(self):
         return {
             "round_number": self.round_number,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
             "matches": [match.to_dict() for match in self.matches]
         }
 
     @classmethod
-    def from_dict(cls, data,tournament):
+    def from_dict(cls, data, tournament):
         matches = [Match.from_dict(match_data) for match_data in data["matches"]]
-        return cls(tournament,data["round_number"], matches)
+        start_time = data.get("start_time")
+        end_time = data.get("end_time")
+        return cls(tournament,data["round_number"], matches, start_time, end_time)
 
     def create_pairs(self):
         if self.is_first_round:
@@ -80,6 +87,7 @@ class Round:
 
     def play_round(self):
         self.create_pairs()
+        self.matches = self.pairs
         for pair in self.pairs:
             pair.play_match()
 

@@ -18,3 +18,7 @@ def validate_date(date_str: str, format_str: str = '%d/%m/%Y') -> bool:
         return True
     except ValueError:
         return False
+
+
+def get_current_datetime():
+    return datetime.now().strftime("%d/%m/%Y %H:%M:%S")

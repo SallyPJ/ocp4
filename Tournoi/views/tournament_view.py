@@ -2,7 +2,9 @@ from utils import date_utils
 from tabulate import tabulate
 
 
+
 class TournamentView:
+
     def get_tournament_details(self):
         # Get tournament details from user input
         name = input("Entrer le nom du tournoi: ")
@@ -26,7 +28,7 @@ class TournamentView:
     def get_tournament_feedbacks(self,tournament) :
         feedback = input("Entrer vos remarques ou commentaires généraux sur le tournoi:")
         tournament.description = feedback if feedback else "Aucune remarque disponible."
-        print(f"Debug: Description updated to '{tournament.description}'")
+
     def get_round_count(self, default_rounds: int = 4) -> int:
         """
                 Prompts the user for the number of rounds and validates the input.
@@ -59,10 +61,13 @@ class TournamentView:
 
     def show_tournament_menu(self, tournament):
         # Display tournament management menu
-        print("Menu du tournoi:")
-        print(f"1. Sélectionner des joueurs pour le tournoi ({tournament.number_of_players - len(tournament.selected_players)} joueurs à sélectionner)")
-        print("2. Débuter le tournoi")
-        print("3. Menu principal")
+        print("==========================================")
+        print("           [ Menu du Tournoi ]")
+        print("==========================================")
+        print(f"1. Sélectionner des Joueurs pour le Tournoi ({tournament.number_of_players - len(tournament.selected_players)} joueurs à sélectionner)")
+        print("2. Débuter le Tournoi")
+        print("3. Retour au menu principal")
+        print("==========================================")
         return input("Choisissez une option: ")
 
     def display_tournament_details(self, tournament):
@@ -147,6 +152,32 @@ class TournamentView:
         else:
             print(f"Le tournoi '{tournament.name}' n'a pas de joueurs sélectionnés.")
 
+        # Affichage des rounds et des matchs
+        print("Détails des rounds :")
+        for round in tournament.rounds:
+            print(f"Round {round.round_number}:")
+            if round.matches:
+                match_table = []
+                for index, match in enumerate(round.matches, start=1):
+                    results = match.get_results()
+                    player1_result = results.get(match.players[0].first_name, "N/A")
+                    player2_result = results.get(match.players[1].first_name, "N/A")
+                    match_table.append([
+                        f"Match {index}",
+                        match.players[0].first_name,  # Joueur 1
+                        player1_result,  # Résultat du Joueur 1
+                        match.players[1].first_name,  # Joueur 2
+                        player2_result
+
+                    ])
+
+                match_headers = ["Match","Joueur 1", "Résultat Joueur 1", "Joueur 2", "Résultat Joueur 2"]
+                print(tabulate(match_table, headers=match_headers, tablefmt="grid"))
+            else:
+                print("Aucun match pour ce round.")
+
+            print(f"Durée : {round.start_time} - {round.end_time}")
+
         print(f"Remarques et commentaires généraux sur le tournoi : {tournament.description} ")
 
 
@@ -160,6 +191,12 @@ class TournamentView:
                 result2 = match.results[player2.first_name]
                 print(
                     f" - {player1.first_name} {player1.last_name} vs {player2.first_name} {player2.last_name} : {result1}-{result2}")
+
+    def display_final_scores(self,tournament):
+        # Display final scores of players
+        print("Scores finaux:")
+        for player in tournament.selected_players:
+            print(f"{player.first_name}: {player.total_points}")
 
 
     def display_message(self, message):

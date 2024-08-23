@@ -1,11 +1,13 @@
 class ReportView:
 
     def show_reports_main_menu(self):
-        print("Menu des rapports:")
-        print("1. Liste des joueurs par ordre alphabétique")
-        print("2. Liste des tournois passés")
-        print("3. Rapport global")
-        print("4. Quitter")
+        print("==========================================")
+        print("           [ Menu des rapports ]")
+        print("==========================================")
+        print("1. Liste des Joueurs")
+        print("2. Tournois Enregistrés")
+        print("3. Vue d'Ensemble des Tournois")
+        print("4. Retour au menu principal")
         return input("Choisir une option: ")
 
 

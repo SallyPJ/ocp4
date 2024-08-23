@@ -1,8 +1,10 @@
 from models.tournament import Tournament
 from models.database import Database
+from models.round import Round
 from controllers.player_controller import PlayerController
 from views.tournament_view import TournamentView
 from views.player_view import PlayerView
+from utils import date_utils
 
 class TournamentController:
     def __init__(self):
@@ -11,6 +13,7 @@ class TournamentController:
         self.database = Database()
         self.player_controller = PlayerController()
         self.player_view = PlayerView()
+
 
     def create_tournament(self):
         # Create a new tournament
@@ -36,13 +39,13 @@ class TournamentController:
                     self.tournament_view.display_message("Aucun joueur sélectionné.")
             elif choice == '2':
                 # Start the tournament
-                if tournament.check_players_count():
-                    tournament.display_tournament_details()
+                if self.check_players_count(tournament):
+                    self.tournament_view.display_tournament_details(tournament)
                     tournaments = self.database.load_tournaments()
                     tournaments.append(tournament)
                     self.database.save_tournament(tournaments)
-                    tournament.run_tournament()
-                    tournament.display_final_scores()
+                    self.run_tournament(tournament)
+                    self.tournament_view.display_final_scores(tournament)
                     self.tournament_view.get_tournament_feedbacks(tournament)
                     self.database.update_tournament(tournament)
                     break
@@ -105,3 +108,45 @@ class TournamentController:
             self.tournament_view.display_message("Entrée invalide. Veuillez entrer des numéros valides.")
             return []
 
+    def run_tournament(self,tournament, round):
+        from models.database import Database
+
+        # Run the tournament rounds
+        for i in range(tournament.number_of_rounds):
+            is_first_round = (i == 0)  # Vérifie si c'est le premier tour
+            # Enregistrer le start_time au début du round
+            start_time = date_utils.get_current_datetime()
+            round = Round(tournament, round_number=i + 1, is_first_round=is_first_round)
+            round.start_time = start_time
+            round.play_round()
+            end_time = date_utils.get_current_datetime()
+            round.end_time = end_time
+            self.process_round_results(tournament,round)
+            tournament.rounds.append(round)
+            #self.rounds.append(round)  # Ajouter le round au tournoi
+            Database.update_tournament(self)
+
+    def check_players_count(self, tournament):
+        return len(tournament.selected_players) == tournament.number_of_players
+
+    def process_round_results(self, tournament, round):
+        results = round.get_results()
+        for match_result in results:
+            if isinstance(match_result, dict) and len(match_result) == 2:
+                # Assurez-vous que match_result est un dictionnaire avec exactement deux éléments
+                player1_name, score1 = list(match_result.items())[0]
+                player2_name, score2 = list(match_result.items())[1]
+
+                # Trouvez les objets Player correspondant aux noms
+                player1 = next(player for player in tournament.selected_players if player.first_name == player1_name)
+                player2 = next(player for player in tournament.selected_players if player.first_name == player2_name)
+
+                # Mettre à jour les points
+                player1.total_points += score1
+                player2.total_points += score2
+
+                # Ajouter les adversaires aux listes correspondantes
+                player1.opponents.append(player2_name)
+                player2.opponents.append(player1_name)
+            else:
+                print(f"Unexpected match result format: {match_result}")

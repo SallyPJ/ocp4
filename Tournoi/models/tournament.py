@@ -19,53 +19,6 @@ class Tournament:
         self.rounds = []
 
 
-    def check_players_count(self) :
-        return len(self.selected_players) == self.number_of_players
-
-    def display_tournament_details(self):
-        # Display tournament details
-        print(f"Tournoi: {self.name}, Lieu: {self.location}, Dates: {self.start_date} - {self.end_date}")
-
-    def run_tournament(self):
-        # Run the tournament rounds
-        for i in range(self.number_of_rounds):
-            is_first_round = (i == 0)  # Vérifie si c'est le premier tour
-            round = Round(self, round_number=i + 1, is_first_round=is_first_round)
-            round.play_round()
-            self.process_round_results(round)
-            #self.rounds.append(round)  # Ajouter le round au tournoi
-
-
-
-
-
-    def process_round_results(self, round):
-        results = round.get_results()
-        for match_result in results:
-            if isinstance(match_result, dict) and len(match_result) == 2:
-                # Assurez-vous que match_result est un dictionnaire avec exactement deux éléments
-                player1_name, score1 = list(match_result.items())[0]
-                player2_name, score2 = list(match_result.items())[1]
-
-                # Trouvez les objets Player correspondant aux noms
-                player1 = next(player for player in self.selected_players if player.first_name == player1_name)
-                player2 = next(player for player in self.selected_players if player.first_name == player2_name)
-
-                # Mettre à jour les points
-                player1.total_points += score1
-                player2.total_points += score2
-
-                # Ajouter les adversaires aux listes correspondantes
-                player1.opponents.append(player2_name)
-                player2.opponents.append(player1_name)
-            else:
-                print(f"Unexpected match result format: {match_result}")
-    def display_final_scores(self):
-        # Display final scores of players
-        print("Scores finaux:")
-        for player in self.selected_players:
-            print(f"{player.first_name}: {player.total_points}")
-
     def to_dict(self):
         # Convert Tournament object to dictionary
         return {
