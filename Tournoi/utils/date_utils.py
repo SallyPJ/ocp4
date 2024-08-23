@@ -22,3 +22,9 @@ def validate_date(date_str: str, format_str: str = '%d/%m/%Y') -> bool:
 
 def get_current_datetime():
     return datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+
+def parse_date(date_str):
+    return datetime.strptime(date_str, "%d/%m/%Y")
+
+

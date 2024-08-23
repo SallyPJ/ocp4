@@ -1,5 +1,5 @@
-from models.player import Player
 from models.database import Database
+from models.player import Player
 from views.player_view import PlayerView
 
 class PlayerController:

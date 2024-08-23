@@ -1,8 +1,9 @@
 import json
 import os
+
 from models.player import Player
 from models.tournament import Tournament
-from tinydb import TinyDB, Query
+
 
 class Database:
     PLAYERS_FILE = "players.json"

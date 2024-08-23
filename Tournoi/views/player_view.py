@@ -26,4 +26,17 @@ class PlayerView:
 
     def get_player_count(self):
         # Get number of players from user input
-        return int(input("Entrer le nombre de joueurs: "))
+        while True:
+            try:
+                number_of_players = int(input("Entrer le nombre de joueurs: "))
+                if number_of_players > 0 and (number_of_players % 2) == 0:
+                    return number_of_players
+                elif number_of_players <= 0:
+                    print("Le nombre de joueurs doit être un nombre positif.")
+                else:
+                    print("Le nombre de joueurs doit être un chiffre pair")
+
+            except ValueError:
+                print("Veuillez entrer un nombre entier")
+
+

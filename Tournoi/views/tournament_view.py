@@ -79,10 +79,12 @@ class TournamentView:
 
     def display_tournaments_list(self, tournaments):
         """
-        Displays the list of tournaments sorted by start date.
+        Displays the list of tournaments sorted by start date from most recent to oldest.
         """
+
+
         # Sort tournaments by start date
-        tournaments_sorted = sorted(tournaments, key=lambda t: t.start_date)
+        tournaments_sorted = sorted(tournaments, key=lambda t: date_utils.parse_date(t.start_date), reverse=True)
 
         # Prepare the data for the table and UUID index map
         table = []
@@ -159,7 +161,7 @@ class TournamentView:
             if round.matches:
                 match_table = []
                 for index, match in enumerate(round.matches, start=1):
-                    results = match.get_results()
+                    results = match.get_match_results()
                     player1_result = results.get(match.players[0].first_name, "N/A")
                     player2_result = results.get(match.players[1].first_name, "N/A")
                     match_table.append([

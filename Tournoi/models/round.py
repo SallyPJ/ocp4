@@ -27,6 +27,7 @@ class Round:
         end_time = data.get("end_time")
         return cls(tournament,data["round_number"], matches, start_time, end_time)
 
+
     def create_pairs(self):
         if self.is_first_round:
             self.create_random_pairs()
@@ -37,7 +38,7 @@ class Round:
         # Create random pairs of players
         random.shuffle(self.players)
         self.pairs = [
-            Match(self.players[i], self.players[i + 1],  self.round_number)
+            Match(self.players[i], self.players[i + 1], self.round_number)
             for i in range(0, len(self.players), 2)
             if i + 1 < len(self.players)
         ]
@@ -80,17 +81,3 @@ class Round:
                 self.pairs.append(Match(player1, player2, self.round_number))
                 player1.add_opponent(player2)
                 player2.add_opponent(player1)
-
-    def has_played_before(self, player1, player2):
-        # Vérifie si les deux joueurs ont déjà joué l'un contre l'autre
-        return player1.has_played_against(player2)
-
-    def play_round(self):
-        self.create_pairs()
-        self.matches = self.pairs
-        for pair in self.pairs:
-            pair.play_match()
-
-    def get_results(self):
-        # Return match results
-        return [pair.get_results() for pair in self.pairs]

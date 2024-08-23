@@ -1,30 +1,54 @@
-from models.tournament import Tournament
-from models.database import Database
-from models.round import Round
-from controllers.player_controller import PlayerController
-from views.tournament_view import TournamentView
-from views.player_view import PlayerView
+import random
 from utils import date_utils
+from models.database import Database
+from models.match import Match
+from models.round import Round
+from models.tournament import Tournament
+from views.player_view import PlayerView
+from views.tournament_view import TournamentView
+
 
 class TournamentController:
     def __init__(self):
-        # Initialize view, database, and player controller
-        self.tournament_view = TournamentView()
+        # Initialize tournament view, database, and player view
         self.database = Database()
-        self.player_controller = PlayerController()
         self.player_view = PlayerView()
+        self.tournament_view = TournamentView()
+
 
 
     def create_tournament(self):
-        # Create a new tournament
+        """
+        Create a new tournament by collecting user input and initializing a Tournament object.
+        Then, call the manage_tournament method to manage the tournament lifecycle.
+
+        Returns:
+            None
+        """
+        # Get tournament details from the user
         details = self.tournament_view.get_tournament_details()
+        # Get the number of rounds for the tournament
         number_of_rounds = self.tournament_view.get_round_count()
+        # Get the number of players for the tournament
         number_of_players = self.player_view.get_player_count()
+        # Create a new Tournament object
         tournament = Tournament(*details, number_of_rounds, number_of_players)
+        # Manage the created tournament
         self.manage_tournament(tournament)
 
+
     def manage_tournament(self, tournament):
-        # Manage the tournament lifecycle
+        """
+        Manage the tournament lifecycle.
+
+        This method repeatedly prompts the user for input until a valid choice is made.
+
+        Parameters:
+        - tournament (Tournament): The tournament object to manage.
+
+        Returns:
+        None
+        """
         while True:
             choice = self.tournament_view.show_tournament_menu(tournament)
             if choice == '1':
@@ -59,6 +83,10 @@ class TournamentController:
                 break
             else:
                 print("Option invalide. Veuillez réessayer.")
+
+    @staticmethod
+    def check_players_count(tournament):
+        return len(tournament.selected_players) == tournament.number_of_players
 
     def select_multiple_players(self, players, tournament):
         # Select multiple players for the tournament
@@ -108,7 +136,7 @@ class TournamentController:
             self.tournament_view.display_message("Entrée invalide. Veuillez entrer des numéros valides.")
             return []
 
-    def run_tournament(self,tournament, round):
+    def run_tournament(self, tournament):
         from models.database import Database
 
         # Run the tournament rounds
@@ -116,21 +144,56 @@ class TournamentController:
             is_first_round = (i == 0)  # Vérifie si c'est le premier tour
             # Enregistrer le start_time au début du round
             start_time = date_utils.get_current_datetime()
-            round = Round(tournament, round_number=i + 1, is_first_round=is_first_round)
-            round.start_time = start_time
-            round.play_round()
+            round_instance = Round(tournament, round_number=i + 1, is_first_round=is_first_round)
+            round_instance.start_time = start_time
+            self.play_round(round_instance)
             end_time = date_utils.get_current_datetime()
-            round.end_time = end_time
-            self.process_round_results(tournament,round)
-            tournament.rounds.append(round)
-            #self.rounds.append(round)  # Ajouter le round au tournoi
-            Database.update_tournament(self)
+            round_instance.end_time = end_time
+            self.process_round_results(tournament, round_instance)
+            tournament.rounds.append(round_instance)
+            Database.update_tournament(tournament)
 
-    def check_players_count(self, tournament):
-        return len(tournament.selected_players) == tournament.number_of_players
+    def play_round(self, round_instance):
+        round_instance.create_pairs()
+        round_instance.matches = round_instance.pairs
+        for match in round_instance.pairs:
+            self.play_match(round_instance, match)
 
-    def process_round_results(self, tournament, round):
-        results = round.get_results()
+    def get_round_results(self, round_instance):
+        # Return match results
+        return [pair.get_match_results() for pair in round_instance.pairs]
+
+    def play_match(self,round_instance, match):
+        # Record the results of a match
+        print(f"Round {round_instance.round_number}: Match entre {match.players[0].first_name} "
+              f"et {match.players[1].first_name}.")
+        while True:
+            try:
+                choice = int(input(f"Qui a gagné ? :\n"
+                               f"1. {match.players[0].first_name}\n"
+                               f"2. {match.players[1].first_name}\n"
+                               f"3. Match nul\n"))
+                if choice == 1:
+                    match.results[match.players[0].first_name] = 1
+                    break
+                elif choice == 2:
+                    match.results[match.players[1].first_name] = 1
+                    break
+                elif choice == 3:
+                    match.results[match.players[0].first_name] = 0.5
+                    match.results[match.players[1].first_name] = 0.5
+                    break
+                else:
+                    print("Choix invalide, veuillez entrer 1, 2 ou 3.")
+
+            except ValueError:
+                print("Entrée invalide, veuillez entrer un nombre entier .")
+
+        print("Résultat enregistré.")
+
+
+    def process_round_results(self, tournament, round_instance):
+        results = self.get_round_results(round_instance)
         for match_result in results:
             if isinstance(match_result, dict) and len(match_result) == 2:
                 # Assurez-vous que match_result est un dictionnaire avec exactement deux éléments
@@ -149,4 +212,7 @@ class TournamentController:
                 player1.opponents.append(player2_name)
                 player2.opponents.append(player1_name)
             else:
-                print(f"Unexpected match result format: {match_result}")
+                print(f"Erreur dans le résultat du match: {match_result}")
+
+
+
