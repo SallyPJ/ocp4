@@ -5,6 +5,16 @@ from tabulate import tabulate
 
 class TournamentView:
 
+    def display_tournaments_menu(self):
+        print("==========================================")
+        print("       [ Menu de Gestion des Tournois ]")
+        print("==========================================")
+        print("1. Créer un Nouveau Tournoi")
+        print("2. Lancer un Tournoi")
+        print("3. Liste et détails des Tournois Terminés")
+        print("4. Retour au Menu Principal")
+        print("==========================================")
+        return input("Choisir une option: ")
     def get_tournament_details(self):
         # Get tournament details from user input
         name = input("Entrer le nom du tournoi: ")
@@ -59,14 +69,13 @@ class TournamentView:
 
 
 
-    def show_tournament_menu(self, tournament):
+    def show_tournament_launcher_menu(self, tournament):
         # Display tournament management menu
         print("==========================================")
-        print("           [ Menu du Tournoi ]")
+        print("     [ Menu du lancement du Tournoi ]")
         print("==========================================")
-        print(f"1. Sélectionner des Joueurs pour le Tournoi ({tournament.number_of_players - len(tournament.selected_players)} joueurs à sélectionner)")
-        print("2. Débuter le Tournoi")
-        print("3. Retour au menu principal")
+        print("1. Débuter le Tournoi")
+        print("2. Retour au menu principal")
         print("==========================================")
         return input("Choisissez une option: ")
 
@@ -77,11 +86,32 @@ class TournamentView:
         else:
             print("Tournoi non trouvé.")
 
-    def display_tournaments_list(self, tournaments):
+    def filter_tournaments(self, tournaments, filter_status):
+        """
+        Filter the list of tournaments based on their status.
+
+        :param tournaments: List of Tournament objects.
+        :param filter_status: Status to filter ('in_progress' or 'completed').
+        :return: Filtered list of tournaments.
+        """
+        if filter_status is None:
+            # Return all tournaments if no filter status is specified
+            print("Ces tournois n'ont pas de statut")
+            return tournaments
+        elif filter_status == 'in_progress':
+            return [tournament for tournament in tournaments if tournament.in_progress]
+        elif filter_status == 'completed':
+            return [tournament for tournament in tournaments if not tournament.in_progress]
+        else:
+            raise ValueError("Invalid filter status provided. Use 'in_progress' or 'completed'.")
+
+    def display_tournaments_list(self, tournaments, filter_status=None):
         """
         Displays the list of tournaments sorted by start date from most recent to oldest.
         """
-
+        # Filter tournaments based on status if filter_status is provided
+        if filter_status:
+            tournaments = self.filter_tournaments(tournaments, filter_status)
 
         # Sort tournaments by start date
         tournaments_sorted = sorted(tournaments, key=lambda t: date_utils.parse_date(t.start_date), reverse=True)
@@ -125,7 +155,38 @@ class TournamentView:
         """
         return input("Entrez le numéro d'un ou plusieurs tournois (séparés par une virgule): ")
 
-    def display_all_tournament_details(self, tournament):
+
+
+    def display_tournament_rounds_and_matches(self, tournament):
+        print(f"Tournoi : {tournament.name}")
+        for round in tournament.rounds:
+            print(f"Tour {round.round_number} :")
+            for match in round.matches:
+                player1, player2 = match.players
+                result1 = match.results[player1.first_name]
+                result2 = match.results[player2.first_name]
+                print(
+                    f" - {player1.first_name} {player1.last_name} vs {player2.first_name} {player2.last_name} : {result1}-{result2}")
+
+    def display_final_scores(self, tournament):
+        # Display final scores of players
+        print("Scores finaux:")
+        table_data = []
+        for player in tournament.selected_players:
+            full_name = f"{player.last_name} {player.first_name} "
+            table_data.append([full_name, player.total_points])
+        # Define headers
+        headers = ["Nom et prénom du joueur", "Points totaux"]
+
+        # Display table using tabulate
+        print(tabulate(table_data, headers=headers, tablefmt="grid"))
+
+
+    def display_message(self, message):
+        # Display a message to the user
+        print(message)
+
+    def display_tournament_report(self, tournament):
         """
         Display tournament's details
         """
@@ -181,26 +242,3 @@ class TournamentView:
             print(f"Durée : {round.start_time} - {round.end_time}")
 
         print(f"Remarques et commentaires généraux sur le tournoi : {tournament.description} ")
-
-
-    def display_tournament_rounds_and_matches(self, tournament):
-        print(f"Tournoi : {tournament.name}")
-        for round in tournament.rounds:
-            print(f"Tour {round.round_number} :")
-            for match in round.matches:
-                player1, player2 = match.players
-                result1 = match.results[player1.first_name]
-                result2 = match.results[player2.first_name]
-                print(
-                    f" - {player1.first_name} {player1.last_name} vs {player2.first_name} {player2.last_name} : {result1}-{result2}")
-
-    def display_final_scores(self,tournament):
-        # Display final scores of players
-        print("Scores finaux:")
-        for player in tournament.selected_players:
-            print(f"{player.first_name}: {player.total_points}")
-
-
-    def display_message(self, message):
-        # Display a message to the user
-        print(message)

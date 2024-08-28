@@ -16,6 +16,72 @@ class TournamentController:
         self.tournament_view = TournamentView()
 
 
+    def manage_tournament(self):
+        """
+        Manage the tournament lifecycle.
+
+        This method repeatedly prompts the user for input until a valid choice is made.
+
+        Parameters:
+        - tournament (Tournament): The tournament object to manage.
+
+        Returns:
+        None
+        """
+        while True:
+            choice = self.tournament_view.display_tournaments_menu()
+            if choice == "1":
+                # Create a new tournament
+                tournament = self.create_tournament()
+                self.tournament_launcher_menu(tournament)
+            elif choice == "2":
+                # Display a list of in progress tournaments
+                tournaments = self.database.load_tournaments()  # Load tournaments from the database
+                uuid_index_map = self.tournament_view.display_tournaments_list(tournaments,
+                                                                               filter_status="in_progress")  # Display tournament list
+                user_input = self.tournament_view.get_tournament_selection()  # Get user selection
+                selected_tournaments = self.process_tournament_choices(
+                    user_input, tournaments, uuid_index_map)  # Process the user's tournament choices
+                for tournament in selected_tournaments:
+                    self.tournament_launcher_menu(tournament)
+            elif choice == "3":
+                # Display a list of co tournaments
+                tournaments = self.database.load_tournaments()  # Load tournaments from the database
+                uuid_index_map = self.tournament_view.display_tournaments_list(tournaments,
+                                                                               filter_status="completed")  # Display tournament list
+                user_input = self.tournament_view.get_tournament_selection()  # Get user selection
+                selected_tournaments = self.process_tournament_choices(
+                    user_input, tournaments, uuid_index_map)  # Process the user's tournament choices
+                for tournament in selected_tournaments:
+                    # Display details of selected tournaments
+                    self.tournament_view.display_tournament_report(tournament)
+            elif choice == "4":
+                break
+            else:
+                print("Option invalide. Veuillez réessayer.")
+    def tournament_launcher_menu(self,tournament):
+        while True:
+            choice = self.tournament_view.show_tournament_launcher_menu(tournament)
+            if choice == "1":
+            # Start the tournament
+                if self.check_players_count(tournament):
+                    self.tournament_view.display_tournament_details(tournament)
+                    self.run_tournament(tournament)
+                    self.tournament_view.display_final_scores(tournament)
+                    self.tournament_view.get_tournament_feedbacks(tournament)
+                    tournament.in_progress = False
+                    self.database.save_tournament_update(tournament)
+                    break
+                else:  #A modifier là,mettre un contrôle avant sur le nombre de joueurs
+                    self.tournament_view.display_message(f"Nombre incorrect de joueurs sélectionnés.\n"
+                                                        f"Joueurs enregistrés : {len(tournament.selected_players)}, Joueurs attendus : {tournament.number_of_players}.\n"
+                                                        f"Réinitialisation des joueurs effectuée.\n")
+                    tournament.selected_players.clear()
+            elif choice == "2":
+                 # Exit tournament management
+                break
+            else:
+                print("Option invalide. Veuillez réessayer.")
 
     def create_tournament(self):
         """
@@ -33,57 +99,25 @@ class TournamentController:
         number_of_players = self.player_view.get_player_count()
         # Create a new Tournament object
         tournament = Tournament(*details, number_of_rounds, number_of_players)
-        # Manage the created tournament
-        self.manage_tournament(tournament)
+
+        self.add_players_to_tournament(tournament)
+        tournaments = self.database.load_tournaments()
+        tournaments.append(tournament)
+        self.database.save_tournament(tournaments)
+
+        return tournament
 
 
-    def manage_tournament(self, tournament):
-        """
-        Manage the tournament lifecycle.
-
-        This method repeatedly prompts the user for input until a valid choice is made.
-
-        Parameters:
-        - tournament (Tournament): The tournament object to manage.
-
-        Returns:
-        None
-        """
-        while True:
-            choice = self.tournament_view.show_tournament_menu(tournament)
-            if choice == '1':
-                # Select players for the tournament
-                loaded_players = self.database.load_players()
-                players = sorted(loaded_players)  # Le tri utilise la méthode __lt__ de la classe Player
-                selected_players = self.select_multiple_players(players, tournament)
-                if selected_players:
-                    tournament.selected_players.extend(selected_players)
-                    self.tournament_view.display_message("Joueurs ajoutés avec succès.")
-                else:
-                    self.tournament_view.display_message("Aucun joueur sélectionné.")
-            elif choice == '2':
-                # Start the tournament
-                if self.check_players_count(tournament):
-                    self.tournament_view.display_tournament_details(tournament)
-                    tournaments = self.database.load_tournaments()
-                    tournaments.append(tournament)
-                    self.database.save_tournament(tournaments)
-                    self.run_tournament(tournament)
-                    self.tournament_view.display_final_scores(tournament)
-                    self.tournament_view.get_tournament_feedbacks(tournament)
-                    self.database.update_tournament(tournament)
-                    break
-                else:
-                    self.tournament_view.display_message(f"Nombre incorrect de joueurs sélectionnés.\n"
-                                                         f"Joueurs enregistrés : {len(tournament.selected_players)}, Joueurs attendus : {tournament.number_of_players}.\n"
-                                                         f"Réinitialisation des joueurs effectuée.\n")
-                    tournament.selected_players.clear()
-            elif choice == '3':
-                # Exit tournament management
-                break
-            else:
-                print("Option invalide. Veuillez réessayer.")
-
+    def add_players_to_tournament(self, tournament):
+        # Select players for the tournament
+        loaded_players = self.database.load_players()
+        players = sorted(loaded_players)  # Le tri utilise la méthode __lt__ de la classe Player
+        selected_players = self.select_multiple_players(players, tournament)
+        if selected_players:
+            tournament.selected_players.extend(selected_players)
+            self.tournament_view.display_message("Joueurs ajoutés avec succès.")
+        else:
+            self.tournament_view.display_message("Aucun joueur sélectionné.")
     @staticmethod
     def check_players_count(tournament):
         return len(tournament.selected_players) == tournament.number_of_players
@@ -137,8 +171,6 @@ class TournamentController:
             return []
 
     def run_tournament(self, tournament):
-        from models.database import Database
-
         # Run the tournament rounds
         for i in range(tournament.number_of_rounds):
             is_first_round = (i == 0)  # Vérifie si c'est le premier tour
@@ -151,13 +183,20 @@ class TournamentController:
             round_instance.end_time = end_time
             self.process_round_results(tournament, round_instance)
             tournament.rounds.append(round_instance)
-            Database.update_tournament(tournament)
+            Database.save_tournament_update(tournament)
 
     def play_round(self, round_instance):
         round_instance.create_pairs()
         round_instance.matches = round_instance.pairs
         for match in round_instance.pairs:
             self.play_match(round_instance, match)
+
+            # Sauvegarde de l'état après chaque match
+            self.state["current_match"] = {
+                "round_number": round_instance.round_number,
+                "match_details": match.to_dict()
+            }
+            self.save_state(self.state)
 
     def get_round_results(self, round_instance):
         # Return match results
@@ -189,7 +228,7 @@ class TournamentController:
             except ValueError:
                 print("Entrée invalide, veuillez entrer un nombre entier .")
 
-        print("Résultat enregistré.")
+        print("Résultat du match enregistré.")
 
 
     def process_round_results(self, tournament, round_instance):

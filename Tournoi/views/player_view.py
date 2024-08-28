@@ -4,8 +4,19 @@ from tabulate import tabulate
 
 
 class PlayerView:
+
+    def display_players_menu(self):
+        print("==========================================")
+        print("       [ Menu de Gestion des Joueurs ]")
+        print("==========================================")
+        print("1. Enregistrer un Nouveau Joueur")
+        print("2. Liste des Joueurs Enregistrés")
+        print("3. Retour au Menu Principal")
+        print("==========================================")
+        return input("Choisir une option: ")
     def get_player_details(self):
         # Get player details from user input
+        print("Enregistrement d'un nouveau joueur")
         last_name = input("Entrer le nom de famille: ")
         first_name = input("Entrer le prénom: ")
         while True:

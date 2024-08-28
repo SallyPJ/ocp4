@@ -27,7 +27,6 @@ class Round:
         end_time = data.get("end_time")
         return cls(tournament,data["round_number"], matches, start_time, end_time)
 
-
     def create_pairs(self):
         if self.is_first_round:
             self.create_random_pairs()

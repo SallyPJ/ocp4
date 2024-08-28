@@ -20,14 +20,13 @@ class MainController:
         such as creating players, managing tournaments, and generating reports.
         """
         while True:
-            choice = self.main_view.display_main_menu() # Display the main menu and get the user's choice
+            choice = self.main_view.display_main_menu()  # Display the main menu and get the user's choice
             if choice == '1':
-                # Handle player creation
-                player_details = self.main_view.get_player_details()  # Get player details from the user
-                self.player_controller.create_player(*player_details)  # Create the player using player controller
+                # Opens the players management menu
+                self.player_controller.manage_player()
             elif choice == '2':
                 # Handle tournament creation
-                self.tournament_controller.create_tournament()  # Create a new tournament
+                self.tournament_controller.manage_tournament()  # Create a new tournament
             elif choice == '3':
                 # Display list of registered players
                 self.report_controller.manage_reports()

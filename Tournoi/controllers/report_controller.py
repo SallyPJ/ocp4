@@ -9,7 +9,6 @@ from views.report_view import ReportView
 from views.tournament_view import TournamentView
 
 
-
 class ReportController:
 
     def __init__(self):
@@ -19,8 +18,6 @@ class ReportController:
         self.report_view = ReportView()
         self.player_view = PlayerView()
         self.tournament_view = TournamentView()
-
-
 
     def manage_reports(self):
         """
@@ -35,34 +32,15 @@ class ReportController:
           None
           """
         while True:
-            choice = self.report_view.show_reports_main_menu() # Show the reports menu and get the user's choice
+            choice = self.report_view.display_reports_main_menu()  # Show the reports menu and get the user's choice
             if choice == '1':
-                # Display registered players by alphabetical order
-                loaded_players = self.database.load_players()  # Load players from the database
-                players = sorted(loaded_players)  # Sort players alphabetically (last name)
-                self.player_view.display_players_list(players) # Display the sorted list of players
-
-            elif choice == '2':
-                # Display a list of tournaments
-                tournaments = self.database.load_tournaments()  # Load tournaments from the database
-                uuid_index_map = self.tournament_view.display_tournaments_list(tournaments)  # Display tournament list
-                user_input = self.tournament_view.get_tournament_selection()  # Get user selection
-                selected_tournaments = self.tournament_controller.process_tournament_choices(
-                    user_input, tournaments, uuid_index_map)  # Process the user's tournament choices
-                for tournament in selected_tournaments:
-                    # Display details of selected tournaments
-                    self.tournament_view.display_all_tournament_details(tournament)
-
-            elif choice == '3':
                 # Generate and display an HTML report of all tournaments
                 tournaments = self.database.load_tournaments()  # Load tournaments
                 self.generate_html_report(tournaments)  # Generate the report
                 break
-
-            elif choice == '4':
+            elif choice == '2':
                 # Exit reporting menu et open Main Menu
                 break
-
             else:
                 print("Option invalide. Veuillez réessayer.")
 
