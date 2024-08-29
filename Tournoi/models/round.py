@@ -33,6 +33,7 @@ class Round:
         else:
             self.create_pairs_based_on_points()
 
+
     def create_random_pairs(self):
         # Create random pairs of players
         random.shuffle(self.players)

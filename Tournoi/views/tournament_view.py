@@ -91,27 +91,39 @@ class TournamentView:
         Filter the list of tournaments based on their status.
 
         :param tournaments: List of Tournament objects.
-        :param filter_status: Status to filter ('in_progress' or 'completed').
+        :param filter_status: Status to filter ('not_started', 'in_progress', or 'finished').
         :return: Filtered list of tournaments.
         """
         if filter_status is None:
             # Return all tournaments if no filter status is specified
-            print("Ces tournois n'ont pas de statut")
+            print("Aucun statut de filtre spécifié. Affichage de tous les tournois.")
             return tournaments
-        elif filter_status == 'in_progress':
-            return [tournament for tournament in tournaments if tournament.in_progress]
-        elif filter_status == 'completed':
-            return [tournament for tournament in tournaments if not tournament.in_progress]
-        else:
-            raise ValueError("Invalid filter status provided. Use 'in_progress' or 'completed'.")
 
-    def display_tournaments_list(self, tournaments, filter_status=None):
+        if filter_status == "not_started":
+            # Tournament is not started if it's neither in progress nor finished
+            return [tournament for tournament in tournaments if not tournament.in_progress and not tournament.finished]
+        elif filter_status == "in_progress":
+            return [tournament for tournament in tournaments if tournament.in_progress and not tournament.finished]
+        elif filter_status == "finished":
+            return [tournament for tournament in tournaments if tournament.finished]
+        elif filter_status == "not_finished":
+            return [tournament for tournament in tournaments if not tournament.finished]
+        else:
+            raise ValueError("Statut du filtre non valide. Veuillez utiliser 'not_started', 'in_progress', ou 'finished'.")
+
+
+    def display_tournaments_list(self, tournaments, filter_status):
         """
         Displays the list of tournaments sorted by start date from most recent to oldest.
         """
         # Filter tournaments based on status if filter_status is provided
         if filter_status:
             tournaments = self.filter_tournaments(tournaments, filter_status)
+
+        # Check if tournaments list is empty
+        if not tournaments:
+            print("Aucun tournoi à afficher pour le statut spécifié.")
+            return {}
 
         # Sort tournaments by start date
         tournaments_sorted = sorted(tournaments, key=lambda t: date_utils.parse_date(t.start_date), reverse=True)
@@ -128,7 +140,7 @@ class TournamentView:
 
         # Print the table
         print("Liste de tous les tournois:")
-        print(tabulate(table, headers, tablefmt="pretty", colalign=("left","left","left","left")))
+        print(tabulate(table, headers, tablefmt="pretty", colalign=("left", "left", "left", "left")))
 
         # Return the UUID index map for future reference
         return uuid_index_map
@@ -168,9 +180,7 @@ class TournamentView:
                 print(
                     f" - {player1.first_name} {player1.last_name} vs {player2.first_name} {player2.last_name} : {result1}-{result2}")
 
-    def display_final_scores(self, tournament):
-        # Display final scores of players
-        print("Scores finaux:")
+    def display_scores(self,tournament):
         table_data = []
         for player in tournament.selected_players:
             full_name = f"{player.last_name} {player.first_name} "
@@ -180,6 +190,17 @@ class TournamentView:
 
         # Display table using tabulate
         print(tabulate(table_data, headers=headers, tablefmt="grid"))
+
+    def display_round_scores(self,tournament,round_number):
+        print(f"Résultats du Round {round_number}")
+
+        print("Résultats cumulés par joueur")
+        self.display_scores(tournament)
+
+    def display_final_scores(self, tournament):
+        # Display final scores of players
+        print("+-+-+-+ Scores finaux +-+-+-+")
+        self.display_scores(tournament)
 
 
     def display_message(self, message):

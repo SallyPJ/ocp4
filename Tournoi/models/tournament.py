@@ -6,7 +6,7 @@ from models.player import Player
 
 class Tournament:
     def __init__(self, name: str, location: str, start_date: str, end_date: str, number_of_rounds: int,
-                 number_of_players: int, description=None, in_progress=True):
+                 number_of_players: int, description=None, finished=False, in_progress=False):
         self.reference = str(uuid.uuid4())
         self.name = name
         self.location = location
@@ -15,6 +15,7 @@ class Tournament:
         self.number_of_rounds = number_of_rounds
         self.number_of_players = number_of_players
         self.description = description
+        self.finished = finished
         self.in_progress = in_progress
         self.selected_players = []
         self.rounds = []
@@ -31,6 +32,7 @@ class Tournament:
             "number_of_rounds": self.number_of_rounds,
             "number_of_players": self.number_of_players,
             "description": self.description,
+            "finished": self.finished,
             "in_progress": self.in_progress,
             "selected_players": [player.to_dict() for player in self.selected_players],  # Convert players to dict
             "rounds": [round.to_dict() for round in self.rounds]
@@ -47,7 +49,8 @@ class Tournament:
             data.get("number_of_rounds", 0),
             data.get("number_of_players", 0),
             data.get("description", ""),
-            data.get("in_progress", True)
+            data.get("finished", "Error"),
+            data.get("in_progress", "Error")
         )
         tournament.reference = data.get("reference", str(uuid.uuid4()))
         tournament.selected_players = [Player.from_dict(player_data) for player_data in data.get("selected_players", [])]

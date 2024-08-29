@@ -37,8 +37,7 @@ class TournamentController:
             elif choice == "2":
                 # Display a list of in progress tournaments
                 tournaments = self.database.load_tournaments()  # Load tournaments from the database
-                uuid_index_map = self.tournament_view.display_tournaments_list(tournaments,
-                                                                               filter_status="in_progress")  # Display tournament list
+                uuid_index_map = self.tournament_view.display_tournaments_list(tournaments, filter_status="not_finished")  # Display tournament list
                 user_input = self.tournament_view.get_tournament_selection()  # Get user selection
                 selected_tournaments = self.process_tournament_choices(
                     user_input, tournaments, uuid_index_map)  # Process the user's tournament choices
@@ -48,7 +47,7 @@ class TournamentController:
                 # Display a list of co tournaments
                 tournaments = self.database.load_tournaments()  # Load tournaments from the database
                 uuid_index_map = self.tournament_view.display_tournaments_list(tournaments,
-                                                                               filter_status="completed")  # Display tournament list
+                                                                               filter_status="finished")  # Display tournament list
                 user_input = self.tournament_view.get_tournament_selection()  # Get user selection
                 selected_tournaments = self.process_tournament_choices(
                     user_input, tournaments, uuid_index_map)  # Process the user's tournament choices
@@ -70,6 +69,7 @@ class TournamentController:
                     self.tournament_view.display_final_scores(tournament)
                     self.tournament_view.get_tournament_feedbacks(tournament)
                     tournament.in_progress = False
+                    tournament.finished = True
                     self.database.save_tournament_update(tournament)
                     break
                 else:  #A modifier là,mettre un contrôle avant sur le nombre de joueurs
@@ -131,11 +131,16 @@ class TournamentController:
 
             if selected_players:
                 self.tournament_view.display_selected_players(selected_players)
-                confirmation = self.tournament_view.confirm_selection()
-                if confirmation.lower() == 'o':
-                    return selected_players
+                if len(selected_players) == tournament.number_of_players:
+                    confirmation = self.tournament_view.confirm_selection()
+                    if confirmation.lower() == 'o':
+                        return selected_players
+                    else:
+                        self.tournament_view.display_message("La sélection des joueurs a été réinitialisée.")
                 else:
-                    self.tournament_view.display_message("Sélection des joueurs réinitialisée.")
+                    self.tournament_view.display_message(f"Nombre incorrect de joueurs sélectionnés.\n"
+                                                         f"Vous devez sélectionner {tournament.number_of_players} "
+                                                         f"joueurs. Veuillez réessayer.")
             else:
                 self.tournament_view.display_message("Sélection invalide. Veuillez réessayer.")
 
@@ -171,6 +176,7 @@ class TournamentController:
             return []
 
     def run_tournament(self, tournament):
+        tournament.in_progress = True
         # Run the tournament rounds
         for i in range(tournament.number_of_rounds):
             is_first_round = (i == 0)  # Vérifie si c'est le premier tour
@@ -178,31 +184,31 @@ class TournamentController:
             start_time = date_utils.get_current_datetime()
             round_instance = Round(tournament, round_number=i + 1, is_first_round=is_first_round)
             round_instance.start_time = start_time
-            self.play_round(round_instance)
+            self.play_round(round_instance, tournament)
             end_time = date_utils.get_current_datetime()
             round_instance.end_time = end_time
             self.process_round_results(tournament, round_instance)
-            tournament.rounds.append(round_instance)
-            Database.save_tournament_update(tournament)
+            self.database.save_tournament_update(tournament)
 
-    def play_round(self, round_instance):
+    def play_round(self, round_instance, tournament):
         round_instance.create_pairs()
+        tournament.rounds.append(round_instance)
+        self.database.save_tournament_update(tournament)
         round_instance.matches = round_instance.pairs
         for match in round_instance.pairs:
-            self.play_match(round_instance, match)
+            self.database.save_tournament_update(tournament)  # Sauvegarde de l'état du tournoi entier
+            self.play_match(round_instance, match, tournament)
 
-            # Sauvegarde de l'état après chaque match
-            self.state["current_match"] = {
-                "round_number": round_instance.round_number,
-                "match_details": match.to_dict()
-            }
-            self.save_state(self.state)
+
+
 
     def get_round_results(self, round_instance):
         # Return match results
         return [pair.get_match_results() for pair in round_instance.pairs]
 
-    def play_match(self,round_instance, match):
+    def play_match(self, round_instance, match, tournament):
+        match.in_progress = True
+        self.database.save_tournament_update(tournament)
         # Record the results of a match
         print(f"Round {round_instance.round_number}: Match entre {match.players[0].first_name} "
               f"et {match.players[1].first_name}.")
@@ -228,6 +234,10 @@ class TournamentController:
             except ValueError:
                 print("Entrée invalide, veuillez entrer un nombre entier .")
 
+        # Marquer le match comme terminé et sauvegarder
+        match.in_progress = False
+        match.finished = True
+        self.database.save_tournament_update(tournament)  # Sauvegarde après la mise à jour du match
         print("Résultat du match enregistré.")
 
 
