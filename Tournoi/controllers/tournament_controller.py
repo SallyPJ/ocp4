@@ -275,7 +275,7 @@ class TournamentController:
                 self.play_match(round_instance, match, tournament)
 
         self.database.save_tournament_update(tournament)  # Save tournament state after the round
-        self.tournament_view.display_scores(tournament)
+
 
     def play_match(self, round_instance, match, tournament):
         """

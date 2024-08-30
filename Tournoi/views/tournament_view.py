@@ -10,7 +10,7 @@ class TournamentView:
         print("       [ Menu de Gestion des Tournois ]")
         print("==========================================")
         print("1. Créer un Nouveau Tournoi")
-        print("2. Lancer un Tournoi")
+        print("2. Lancer/Reprendre un Tournoi")
         print("3. Liste et détails des Tournois Terminés")
         print("4. Retour au Menu Principal")
         print("==========================================")
