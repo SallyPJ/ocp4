@@ -20,7 +20,6 @@ class Tournament:
         self.selected_players = []
         self.rounds = []
 
-
     def to_dict(self):
         # Convert Tournament object to dictionary
         return {

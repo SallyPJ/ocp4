@@ -2,6 +2,7 @@ from models.database import Database
 from models.player import Player
 from views.player_view import PlayerView
 
+
 class PlayerController:
     def __init__(self):
         # Initialize view and database
@@ -13,10 +14,12 @@ class PlayerController:
             choice = self.player_view.display_players_menu()
             if choice == "1":
                 # Handle player creation
-                player_details = self.player_view.get_player_details()  # Get player details from the user
+                player_details = (
+                    self.player_view.get_player_details())  # Get player details from the user
                 self.create_player(*player_details)  # Create the player using player controller
             elif choice == "2":
-                # Display registered players by alphabetical order
+                # Display registered players by
+                # alphabetical order
                 loaded_players = self.database.load_players()  # Load players from the database
                 players = sorted(loaded_players)  # Sort players alphabetically (last name)
                 self.player_view.display_players_list(players)  # Display the sorted list of players

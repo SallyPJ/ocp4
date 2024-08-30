@@ -176,69 +176,181 @@ class TournamentController:
             return []
 
     def run_tournament(self, tournament):
+        """
+        Run or resume a tournament, iterating through rounds and handling matches.
+
+        Args:
+            tournament (Tournament): The tournament instance to be run.
+        """
         tournament.in_progress = True
-        # Run the tournament rounds
+        current_round_index = 0
+
+
+
+        # Determine the current round to resume or start a new round
         for i in range(tournament.number_of_rounds):
-            is_first_round = (i == 0)  # Vérifie si c'est le premier tour
-            # Enregistrer le start_time au début du round
-            start_time = date_utils.get_current_datetime()
-            round_instance = Round(tournament, round_number=i + 1, is_first_round=is_first_round)
-            round_instance.start_time = start_time
-            self.play_round(round_instance, tournament)
-            end_time = date_utils.get_current_datetime()
-            round_instance.end_time = end_time
-            self.process_round_results(tournament, round_instance)
-            self.database.save_tournament_update(tournament)
+            round_instance = self.get_current_round(tournament, i + 1)
+            if round_instance:
+                current_round_index = i
+                break
+
+        # Execute or resume rounds from the current incomplete round
+        for i in range(current_round_index, tournament.number_of_rounds):
+            round_instance = self.get_current_round(tournament, i + 1)
+            if round_instance is None:
+                # This condition is met when there's no existing round instance to resume, thus a new round is started
+                is_first_round = (i == 0)  # Check if it's the first round
+                start_time = date_utils.get_current_datetime()
+                round_instance = Round(tournament, round_number=i + 1, is_first_round=is_first_round)
+                round_instance.start_time = start_time
+                self.play_round(round_instance, tournament)
+                end_time = date_utils.get_current_datetime()
+                round_instance.end_time = end_time
+                self.process_round_results(tournament, round_instance)
+                self.database.save_tournament_update(tournament)
+            else:
+                # Update scores from all previously finished matches before resuming or starting the tournament
+                #self.update_scores_from_finished_matches(tournament)
+                # If the round exists and needs to be resumed or continued
+                self.play_round(round_instance, tournament)
+                end_time = date_utils.get_current_datetime()
+                round_instance.end_time = end_time
+
+                self.process_round_results(tournament, round_instance)
+                self.database.save_tournament_update(tournament)
+
+    def update_scores_from_finished_matches(self, tournament):
+        """Update players' scores based on the results of finished matches."""
+        for round in tournament.rounds:
+            for match in round.matches:
+                if match.finished:
+                    # Assume the results dictionary stores scores with player first names as keys
+                    for player in match.players:
+                        player_score = match.results.get(player.first_name, 0)
+                        player.total_points += player_score
+    def get_current_round(self, tournament, round_number):
+        """
+        Get the current round instance from the tournament.
+
+        Args:
+            tournament (Tournament): The tournament instance.
+            round_number (int): The round number to check.
+
+        Returns:
+            Round: The current round instance if found, otherwise None.
+        """
+        for round_instance in tournament.rounds:
+            if round_instance.round_number == round_number:
+                # Check if there are any unfinished matches in this round
+                for match in round_instance.matches:
+                    if not match.finished:
+                        return round_instance
+        return None
 
     def play_round(self, round_instance, tournament):
-        round_instance.create_pairs()
-        tournament.rounds.append(round_instance)
-        self.database.save_tournament_update(tournament)
-        round_instance.matches = round_instance.pairs
-        for match in round_instance.pairs:
-            self.database.save_tournament_update(tournament)  # Sauvegarde de l'état du tournoi entier
-            self.play_match(round_instance, match, tournament)
+        """
+        Play or resume a round by iterating through its matches.
 
+        Args:
+            round_instance (Round): The current round instance.
+            tournament (Tournament): The tournament instance.
+        """
+        # Ensure round is part of tournament
+        if round_instance not in tournament.rounds:
+            tournament.rounds.append(round_instance)
+
+        # Only create pairs if no matches have been generated yet
+        if not round_instance.matches:
+            round_instance.create_pairs()
+            round_instance.matches = round_instance.pairs
+            self.database.save_tournament_update(tournament)  # Sauvegarde de l'état du tournoi entier
+
+        # Go through each match and play it if it hasn't finished yet
+        for match in round_instance.matches:
+            if match.in_progress:
+                print(
+                    f"Reprise du match en cours entre {match.players[0].first_name} et {match.players[1].first_name}.")
+                self.play_match(round_instance, match, tournament)
+            elif not match.finished:
+                self.play_match(round_instance, match, tournament)
+
+        self.database.save_tournament_update(tournament)  # Save tournament state after the round
+        self.tournament_view.display_scores(tournament)
+
+    def play_match(self, round_instance, match, tournament):
+        """
+        Plays a match within a specific round instance of the tournament.
+
+        This method handles the logic for playing a match, recording results,
+        and updating the match state. It prints information about the match
+        and prompts the user to input the match result.
+
+        Args:
+            round_instance (Round): The current round instance in which the match is being played.
+            match (Match): The match instance to be played.
+            tournament (Tournament): The tournament instance.
+        """
+        if match.finished:
+            print(
+                f"⚠️  Ce match entre {match.players[0].first_name} {match.players[0].last_name} et {match.players[1].first_name} {match.players[1].last_name} est déjà terminé.")
+            return
+
+        if match.in_progress:
+            print(
+                f"⏸️  Reprise du match en cours entre {match.players[0].first_name} {match.players[0].last_name} et {match.players[1].first_name} {match.players[1].last_name}.")
+        else:
+            match.in_progress = True
+            self.database.save_tournament_update(tournament)
+
+        # Record the results of a match
+        print(f"\n=== ROUND {round_instance.round_number} : MATCH D'ÉCHECS ===")
+        print(
+            f"♟️ {match.players[0].first_name} {match.players[0].last_name} (Noirs) vs {match.players[1].first_name} {match.players[1].last_name} (Blancs)")
+        print("=========================================\n")
+        while True:
+            try:
+                print("Veuillez choisir le résultat du match :")
+                print(f"1️⃣  Victoire pour {match.players[0].first_name} {match.players[0].last_name} (Noirs)")
+                print(f"2️⃣  Victoire pour {match.players[1].first_name} {match.players[1].last_name} (Blancs)")
+                print("3️⃣  Egalité")
+                choice = int(input("Votre choix (1, 2, 3) : "))
+
+                if choice == 1:
+                    match.results[match.players[0].first_name] = 1
+                    match.finished = True
+                    print(f"\n✅  {match.players[0].first_name} {match.players[0].last_name} remporte la partie !\n")
+                    break
+                elif choice == 2:
+                    match.results[match.players[1].first_name] = 1
+                    match.finished = True
+                    print(f"\n✅  {match.players[1].first_name} {match.players[1].last_name} remporte la partie !\n")
+                    break
+                elif choice == 3:
+                    match.results[match.players[0].first_name] = 0.5
+                    match.results[match.players[1].first_name] = 0.5
+                    match.finished = True
+                    print(f"\n🤝  La partie se termine par un match nul.\n")
+                    break
+                else:
+                    print("Choix invalide, veuillez entrer 1, 2 ou 3")
+
+            except ValueError:
+                print("Entrée invalide, veuillez entrer un nombre entier.")
+
+        # Record total_points for each player
+        for player in match.players:
+            player.total_points += match.results[player.first_name]
+        # Mark match as finished and save state
+        match.finished = True
+        match.in_progress = False
+        print(f"Fin du match. Résultats: {match.results}")
+        self.database.save_tournament_update(tournament)
 
 
 
     def get_round_results(self, round_instance):
         # Return match results
         return [pair.get_match_results() for pair in round_instance.pairs]
-
-    def play_match(self, round_instance, match, tournament):
-        match.in_progress = True
-        self.database.save_tournament_update(tournament)
-        # Record the results of a match
-        print(f"Round {round_instance.round_number}: Match entre {match.players[0].first_name} "
-              f"et {match.players[1].first_name}.")
-        while True:
-            try:
-                choice = int(input(f"Qui a gagné ? :\n"
-                               f"1. {match.players[0].first_name}\n"
-                               f"2. {match.players[1].first_name}\n"
-                               f"3. Match nul\n"))
-                if choice == 1:
-                    match.results[match.players[0].first_name] = 1
-                    break
-                elif choice == 2:
-                    match.results[match.players[1].first_name] = 1
-                    break
-                elif choice == 3:
-                    match.results[match.players[0].first_name] = 0.5
-                    match.results[match.players[1].first_name] = 0.5
-                    break
-                else:
-                    print("Choix invalide, veuillez entrer 1, 2 ou 3.")
-
-            except ValueError:
-                print("Entrée invalide, veuillez entrer un nombre entier .")
-
-        # Marquer le match comme terminé et sauvegarder
-        match.in_progress = False
-        match.finished = True
-        self.database.save_tournament_update(tournament)  # Sauvegarde après la mise à jour du match
-        print("Résultat du match enregistré.")
 
 
     def process_round_results(self, tournament, round_instance):
@@ -253,13 +365,10 @@ class TournamentController:
                 player1 = next(player for player in tournament.selected_players if player.first_name == player1_name)
                 player2 = next(player for player in tournament.selected_players if player.first_name == player2_name)
 
-                # Mettre à jour les points
-                player1.total_points += score1
-                player2.total_points += score2
 
                 # Ajouter les adversaires aux listes correspondantes
-                player1.opponents.append(player2_name)
-                player2.opponents.append(player1_name)
+                player1.opponents.append(player2)
+                player2.opponents.append(player1)
             else:
                 print(f"Erreur dans le résultat du match: {match_result}")
 

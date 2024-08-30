@@ -25,7 +25,7 @@ class Round:
         matches = [Match.from_dict(match_data) for match_data in data["matches"]]
         start_time = data.get("start_time")
         end_time = data.get("end_time")
-        return cls(tournament,data["round_number"], matches, start_time, end_time)
+        return cls(tournament, data["round_number"], matches, start_time=start_time, end_time=end_time)
 
     def create_pairs(self):
         if self.is_first_round:

@@ -1,17 +1,19 @@
 import uuid
 
+
 class Player:
-    def __init__(self, last_name, first_name, date_of_birth, national_id):
+    def __init__(self, last_name, first_name, date_of_birth, national_id, total_points=0, opponents=None):
         self.id = str(uuid.uuid4())
         self.last_name = last_name
         self.first_name = first_name
         self.date_of_birth = date_of_birth
         self.national_id = national_id
-        self.total_points = 0
-        self.opponents = []
+        self.total_points = total_points
+        self.opponents = opponents if opponents is not None else []
 
     def __lt__(self, other):
         return self.last_name.lower() < other.last_name.lower()
+
     def __str__(self):
         return f"{self.last_name} {self.first_name} {self.date_of_birth} {self.national_id}"
 
@@ -22,13 +24,24 @@ class Player:
             "last_name": self.last_name,
             "first_name": self.first_name,
             "date_of_birth": self.date_of_birth,
-            "national_id": self.national_id
+            "national_id": self.national_id,
+            "total_points": self.total_points,
+            "opponents": [opponent.to_dict() for opponent in self.opponents]
         }
 
     @classmethod
     def from_dict(cls, data):
+        opponents_data = data.get("opponents", [])
+        opponents = [cls.from_dict(opponent) for opponent in opponents_data]
         # Create Player object from dictionary
-        return cls(data["last_name"], data["first_name"], data["date_of_birth"], data["national_id"])
+        return cls(
+            data.get("last_name", "Unknown"),
+            data.get("first_name", "Unknown"),
+            data.get("date_of_birth", "01/01/1900"),  # Fournissez une date par défaut ou gérez l'absence autrement
+            data.get("national_id", "000000"),
+            data.get("total_points", 0),
+            opponents
+        )
 
     def add_opponent(self, opponent):
         # Ajoute un adversaire à la liste

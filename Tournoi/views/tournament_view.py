@@ -35,7 +35,8 @@ class TournamentView:
             else:
                 print("La date de fin n'est pas valide. Veuillez entrer la date au format JJ/MM/AAAA.")
         return name, location, start_date, end_date
-    def get_tournament_feedbacks(self,tournament) :
+
+    def get_tournament_feedbacks(self, tournament) :
         feedback = input("Entrer vos remarques ou commentaires généraux sur le tournoi:")
         tournament.description = feedback if feedback else "Aucune remarque disponible."
 
@@ -61,7 +62,8 @@ class TournamentView:
                         else:
                             print("Le nombre de tours doit être compris entre 1 et 30.")
                     except ValueError:
-                        print("Ce n'est pas un nombre entier. Veuillez entrer un nombre entier entre 1 et 30.")
+                        print("Ce n'est pas un nombre entier. "
+                              "Veuillez entrer un nombre entier entre 1 et 30.")
             elif choice == 'n':
                 return default_rounds
             else:
@@ -100,7 +102,8 @@ class TournamentView:
             return tournaments
 
         if filter_status == "not_started":
-            # Tournament is not started if it's neither in progress nor finished
+            # Tournament is not started if it's neither
+            # in progress nor finished
             return [tournament for tournament in tournaments if not tournament.in_progress and not tournament.finished]
         elif filter_status == "in_progress":
             return [tournament for tournament in tournaments if tournament.in_progress and not tournament.finished]
@@ -191,11 +194,7 @@ class TournamentView:
         # Display table using tabulate
         print(tabulate(table_data, headers=headers, tablefmt="grid"))
 
-    def display_round_scores(self,tournament,round_number):
-        print(f"Résultats du Round {round_number}")
 
-        print("Résultats cumulés par joueur")
-        self.display_scores(tournament)
 
     def display_final_scores(self, tournament):
         # Display final scores of players
@@ -232,7 +231,8 @@ class TournamentView:
             ]
             player_headers = ["Identifiant National", "Nom", "Prénom", "Date de naissance"]
 
-            print(tabulate(player_table, player_headers, tablefmt="grid", colalign=("left", "left", "left", "left")))
+            print(tabulate(player_table, player_headers, tablefmt="grid",
+                           colalign=("left", "left", "left", "left")))
         else:
             print(f"Le tournoi '{tournament.name}' n'a pas de joueurs sélectionnés.")
 
@@ -244,8 +244,10 @@ class TournamentView:
                 match_table = []
                 for index, match in enumerate(round.matches, start=1):
                     results = match.get_match_results()
-                    player1_result = results.get(match.players[0].first_name, "N/A")
-                    player2_result = results.get(match.players[1].first_name, "N/A")
+                    player1_result = results.get(match.players[0].
+                                                 first_name, "N/A")
+                    player2_result = results.get(match.players[1].
+                                                 first_name, "N/A")
                     match_table.append([
                         f"Match {index}",
                         match.players[0].first_name,  # Joueur 1
@@ -256,10 +258,13 @@ class TournamentView:
                     ])
 
                 match_headers = ["Match","Joueur 1", "Résultat Joueur 1", "Joueur 2", "Résultat Joueur 2"]
-                print(tabulate(match_table, headers=match_headers, tablefmt="grid"))
+                print(tabulate(match_table, headers=match_headers,
+                               tablefmt="grid"))
             else:
                 print("Aucun match pour ce round.")
 
-            print(f"Durée : {round.start_time} - {round.end_time}")
+            print(f"Début du round: {round.start_time} "
+                  f"- Fin du round : {round.end_time}")
 
-        print(f"Remarques et commentaires généraux sur le tournoi : {tournament.description} ")
+        print(f"Remarques et commentaires généraux sur "
+              f"le tournoi : {tournament.description} ")
