@@ -9,8 +9,8 @@ class TournamentView:
         print("==========================================")
         print("       [ Menu de Gestion des Tournois ]")
         print("==========================================")
-        print("1. Créer un Nouveau Tournoi")
-        print("2. Lancer/Reprendre un Tournoi")
+        print("1. Créer un Nouveau TournamentManager")
+        print("2. Lancer/Reprendre un TournamentManager")
         print("3. Liste et détails des Tournois Terminés")
         print("4. Retour au Menu Principal")
         print("==========================================")
@@ -74,19 +74,19 @@ class TournamentView:
     def show_tournament_launcher_menu(self, tournament):
         # Display tournament management menu
         print("==========================================")
-        print("     [ Menu du lancement du Tournoi ]")
+        print("     [ Menu du lancement du TournamentManager ]")
         print("==========================================")
-        print("1. Débuter le Tournoi")
+        print("1. Débuter le TournamentManager")
         print("2. Retour au menu principal")
         print("==========================================")
         return input("Choisissez une option: ")
 
     def display_tournament_details(self, tournament):
         if tournament:
-            print(f"Tournoi: {tournament.name}")
+            print(f"TournamentManager: {tournament.name}")
             print(f"Dates: {tournament.start_date} - {tournament.end_date}")
         else:
-            print("Tournoi non trouvé.")
+            print("TournamentManager non trouvé.")
 
     def filter_tournaments(self, tournaments, filter_status):
         """
@@ -173,7 +173,7 @@ class TournamentView:
 
 
     def display_tournament_rounds_and_matches(self, tournament):
-        print(f"Tournoi : {tournament.name}")
+        print(f"TournamentManager : {tournament.name}")
         for round in tournament.rounds:
             print(f"Tour {round.round_number} :")
             for match in round.matches:

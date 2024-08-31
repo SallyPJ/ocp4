@@ -1,0 +1,101 @@
+from models.database import Database
+from models.player import Player
+from views.player_view import PlayerView
+
+
+class PlayerController:
+    """
+    Controller class responsible for managing player-related operations such as
+    creating players, displaying registered players, and interacting with the view.
+    """
+    def __init__(self):
+        """
+        Initialize the PlayerController with an associated view and database.
+        """
+        self.player_view = PlayerView()
+        self.database = Database()
+
+    def manage_player(self):
+        """
+       Main loop to manage player operations. Presents a menu to the user and
+       executes the corresponding actions based on the user's choice.
+       1. Create a new player
+       2. Display registered players
+       3. Exit to the main menu
+       """
+        while True:
+            choice = self.player_view.display_players_menu()
+            if choice == "1":
+                self.handle_create_player()
+            elif choice == "2":
+                self.display_registered_players()
+            elif choice == "3":
+                # Exit the loop and return to the main menu
+                break
+            else:
+                print("Option invalide. Veuillez réessayer.")
+
+    def create_player(self, last_name, first_name, date_of_birth, national_id):
+        try:
+            # Create a new player and save to the database
+            new_player = Player(last_name, first_name, date_of_birth, national_id)
+            players = self.database.load_players()
+            players.append(new_player)
+            self.database.save_players(players)
+            print("Joueur créé avec succès !")
+        except Exception as e:
+            print(f"Erreur lors de la création du joueur : {str(e)}")
+
+    def handle_create_player(self):
+        """
+        Handles the creation of a new player. It interacts with the view to gather
+        player details, creates a Player instance, and saves it to the database.
+
+        Exceptions:
+            Handles any exceptions that might occur during player creation.
+        """
+        try:
+            # Handle player creation
+            player_details = self.player_view.get_player_details()  # Get player details from the user
+            self.create_player(*player_details)  # Create the player using player controller
+        except Exception as e:
+            print(f"Une erreur est survenue lors de la création du joueur : {str(e)}")
+
+    def display_registered_players(self):
+        """
+        Retrieves and displays a list of registered players, sorted alphabetically
+        by their last name.
+
+        Exceptions:
+            Handles any exceptions that might occur while loading or displaying players.
+        """
+        try:
+            # Display registered players by alphabetical order
+            players = sorted(self.database.load_players())  # Load and sort players alphabetically
+            self.player_view.display_players_list(players)  # Display the sorted list of players
+        except Exception as e:
+            print(f"Une erreur est survenue lors de l'affichage des joueurs : {str(e)}")
+
+    def create_player(self, last_name, first_name, date_of_birth, national_id):
+        """
+        Creates a new player with the provided details and saves the player to the database.
+
+        Args:
+            last_name (str): The last name of the player.
+            first_name (str): The first name of the player.
+            date_of_birth (str): The date of birth of the player in the format 'DD/MM/YYYY'.
+            national_id (str): The national ID of the player.
+
+        Exceptions:
+            Handles any exceptions that might occur while creating or saving the player.
+        """
+
+        try:
+            new_player = Player(last_name, first_name, date_of_birth, national_id)
+            players = self.database.load_players()
+            players.append(new_player)
+            self.database.save_players(players)
+            print("Player successfully created!")
+        except Exception as e:
+            print(f"Error while creating the player: {str(e)}")
+

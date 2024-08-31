@@ -1,5 +1,4 @@
 import sys
-
 from controllers.player_controller import PlayerController
 from controllers.report_controller import ReportController
 from controllers.tournament_controller import TournamentController
@@ -8,8 +7,10 @@ from views.main_view import MainView
 
 class MainController:
     def __init__(self):
-        # Initialize the main view, player controller, tournament controller,
-        # database, and report view/controller
+        """
+        Initialize the main view and controllers for managing players, tournaments,
+        and generating reports.
+        """
         self.main_view = MainView()
         self.player_controller = PlayerController()
         self.tournament_controller = TournamentController()
