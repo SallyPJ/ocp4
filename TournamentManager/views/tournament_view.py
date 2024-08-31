@@ -9,8 +9,8 @@ class TournamentView:
         print("==========================================")
         print("       [ Menu de Gestion des Tournois ]")
         print("==========================================")
-        print("1. Créer un Nouveau TournamentManager")
-        print("2. Lancer/Reprendre un TournamentManager")
+        print("1. Créer un Nouveau Tournoi")
+        print("2. Lancer/Reprendre un Tournoi")
         print("3. Liste et détails des Tournois Terminés")
         print("4. Retour au Menu Principal")
         print("==========================================")
@@ -74,19 +74,19 @@ class TournamentView:
     def show_tournament_launcher_menu(self, tournament):
         # Display tournament management menu
         print("==========================================")
-        print("     [ Menu du lancement du TournamentManager ]")
+        print("     [ Menu du lancement du Tournoi ]")
         print("==========================================")
-        print("1. Débuter le TournamentManager")
+        print("1. Débuter le Tournoi")
         print("2. Retour au menu principal")
         print("==========================================")
         return input("Choisissez une option: ")
 
     def display_tournament_details(self, tournament):
         if tournament:
-            print(f"TournamentManager: {tournament.name}")
+            print(f"Tournoi: {tournament.name}")
             print(f"Dates: {tournament.start_date} - {tournament.end_date}")
         else:
-            print("TournamentManager non trouvé.")
+            print("Tournoi non trouvé.")
 
     def filter_tournaments(self, tournaments, filter_status):
         """
@@ -173,7 +173,7 @@ class TournamentView:
 
 
     def display_tournament_rounds_and_matches(self, tournament):
-        print(f"TournamentManager : {tournament.name}")
+        print(f"Tournoi : {tournament.name}")
         for round in tournament.rounds:
             print(f"Tour {round.round_number} :")
             for match in round.matches:
@@ -202,9 +202,23 @@ class TournamentView:
         self.display_scores(tournament)
 
 
-    def display_message(self, message):
+    def display_message(self, message_type, tournament=None):
         # Display a message to the user
-        print(message)
+        if message_type == "invalid_option":
+            print(f"❌ Option non valide. Veuillez réessayer")
+        elif message_type == "players_added":
+            print(f"✅ Joueurs ajoutés avec succès.")
+        elif message_type == "no_players_selected":
+            print(f"⚠️ Aucun joueur sélectionné.")
+        elif message_type == "invalid_selection":
+            print(f"❌ Sélection invalide.Veuillez réessayer.")
+        elif message_type == "players_reset":
+            print(f"⚠️ La sélection des joueurs a été réinitialisée.")
+        elif message_type == "incorrect_players_number" and tournament is not None:
+            print(f"⚠️ Nombre incorrect de joueurs sélectionnés.\n"
+                  f"Vous devez sélectionner {tournament.number_of_players} joueurs. Veuillez réessayer.")
+        elif message_type == "no_tournament_selected":
+            print(f"⚠️ Aucun tournoi sélectionné.")
 
     def display_tournament_report(self, tournament):
         """
@@ -268,3 +282,4 @@ class TournamentView:
 
         print(f"Remarques et commentaires généraux sur "
               f"le tournoi : {tournament.description} ")
+

@@ -6,8 +6,9 @@ from models.tournament import Tournament
 
 
 class Database:
-    PLAYERS_FILE = "players.json"
-    TOURNAMENTS_FILE = "tournaments.json"
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    PLAYERS_FILE = os.path.join(BASE_DIR, "data", "players.json")
+    TOURNAMENTS_FILE = os.path.join(BASE_DIR, "data", "tournaments.json")
 
     @classmethod
     def load_players(cls):
