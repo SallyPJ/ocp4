@@ -43,6 +43,9 @@ class ReportController:
         """
         try:
             tournaments = self.database.load_tournaments()  # Load tournaments
+            if not tournaments:
+                print("Aucun tournoi n'a été trouvé.")
+                return
             self.generate_html_report(tournaments)  # Generate the report
             self.open_report_in_browser('tournament_report.html')  # Open the report in the web browser
         except Exception as e:

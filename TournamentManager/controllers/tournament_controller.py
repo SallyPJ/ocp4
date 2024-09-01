@@ -104,6 +104,7 @@ class TournamentController:
 
     def collect_tournament_feedback(self, tournament):
         """Collect feedback from the user after the tournament ends."""
+
         self.tournament_view.get_tournament_feedbacks(tournament)
 
     def finalize_tournament(self, tournament):

@@ -59,10 +59,9 @@
             {% for match in round.matches %}
             <tr>
                 <td>Match {{ loop.index }}</td>
-                <td>{{ match.players[0].first_name }}</td>
-                <td>{{ match.results.get(match.players[0].first_name, 'N/A') }}</td>
-                <td>{{ match.players[1].first_name }}</td>
-                <td>{{ match.results.get(match.players[1].first_name, 'N/A') }}</td>
+                <td>{{ match.match[0][0].first_name }} {{ match.match[0][0].last_name }}</td>
+                <td>{{ match.match[1][0].first_name }} {{ match.match[1][0].last_name }}</td>
+                <td>{{ match.match[0][1] }} - {{ match.match[1][1] }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -70,7 +69,8 @@
     {% else %}
     <p>Aucun match pour ce round.</p>
     {% endif %}
-    <p><strong>Durée:</strong> {{ round.start_time }} - {{ round.end_time }}</p>
+    <p><strong>Début:</strong> {{ round.start_time }} </p>
+    <p><strong>Fin:</strong> {{ round.end_time }}</p>
     {% endfor %}
     {% endfor %}
 </body>
