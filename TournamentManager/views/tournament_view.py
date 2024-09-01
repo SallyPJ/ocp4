@@ -76,7 +76,7 @@ class TournamentView:
         print("==========================================")
         print("     [ Menu du lancement du Tournoi ]")
         print("==========================================")
-        print("1. Débuter le Tournoi")
+        print("1. Débuter/Relancer le Tournoi")
         print("2. Retour au menu principal")
         print("==========================================")
         return input("Choisissez une option: ")
