@@ -11,7 +11,6 @@ class Round:
         self.start_time = start_time
         self.end_time = end_time
 
-
     def to_dict(self):
         return {
             "round_number": self.round_number,
@@ -33,21 +32,15 @@ class Round:
         else:
             self.create_pairs_based_on_points()
 
-
     def create_random_pairs(self):
-        # Create random pairs of players
         random.shuffle(self.players)
-        self.pairs = [
-            Match(self.players[i], self.players[i + 1], self.round_number)
-            for i in range(0, len(self.players), 2)
-            if i + 1 < len(self.players)
-        ]
+        for i in range(0, len(self.players), 2):
+            if i + 1 < len(self.players):
+                self.pairs.append(Match(self.players[i], self.players[i + 1], self.round_number))
 
     def create_pairs_based_on_points(self):
-        # Trier les joueurs par leurs points totaux
         self.players.sort(key=lambda player: player.total_points, reverse=True)
 
-        # Groupes de joueurs avec le même nombre de points
         grouped_players = {}
         for player in self.players:
             points = player.total_points
@@ -55,29 +48,27 @@ class Round:
                 grouped_players[points] = []
             grouped_players[points].append(player)
 
-        # Mélanger les groupes ayant les mêmes points
         for points, players in grouped_players.items():
             random.shuffle(players)
 
-        # Reformer la liste des joueurs
         self.players = [player for group in grouped_players.values() for player in group]
 
-        # Créer les paires
         available_players = self.players[:]
         while len(available_players) >= 2:
             player1 = available_players.pop(0)
             paired = False
             for i, player2 in enumerate(available_players):
                 if not player1.has_played_against(player2):
-                    self.pairs.append(Match(player1, player2, self.round_number))
+                    match = Match(player1, player2, self.round_number)
+                    self.pairs.append(match)
                     player1.add_opponent(player2)
                     player2.add_opponent(player1)
                     available_players.pop(i)
                     paired = True
                     break
             if not paired:
-                # Si aucune paire valide n'est trouvée, appairer quand même les deux premiers joueurs disponibles
                 player2 = available_players.pop(0)
-                self.pairs.append(Match(player1, player2, self.round_number))
+                match = Match(player1, player2, self.round_number)
+                self.pairs.append(match)
                 player1.add_opponent(player2)
                 player2.add_opponent(player1)

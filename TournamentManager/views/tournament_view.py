@@ -76,7 +76,7 @@ class TournamentView:
         print("==========================================")
         print("     [ Menu du lancement du Tournoi ]")
         print("==========================================")
-        print("1. Débuter le Tournoi")
+        print("1. Débuter/Relancer le Tournoi")
         print("2. Retour au menu principal")
         print("==========================================")
         return input("Choisissez une option: ")
@@ -170,18 +170,14 @@ class TournamentView:
         """
         return input("Entrez le numéro d'un ou plusieurs tournois (séparés par une virgule): ")
 
-
-
     def display_tournament_rounds_and_matches(self, tournament):
         print(f"Tournoi : {tournament.name}")
         for round in tournament.rounds:
             print(f"Tour {round.round_number} :")
             for match in round.matches:
-                player1, player2 = match.players
-                result1 = match.results[player1.first_name]
-                result2 = match.results[player2.first_name]
-                print(
-                    f" - {player1.first_name} {player1.last_name} vs {player2.first_name} {player2.last_name} : {result1}-{result2}")
+                results = match.get_match_results()
+                (player1_name, result1), (player2_name, result2) = list(results.items())
+                print(f" - {player1_name} vs {player2_name} : {result1}-{result2}")
 
     def display_scores(self,tournament):
         table_data = []
@@ -257,16 +253,17 @@ class TournamentView:
             if round.matches:
                 match_table = []
                 for index, match in enumerate(round.matches, start=1):
-                    results = match.get_match_results()
-                    player1_result = results.get(match.players[0].
-                                                 first_name, "N/A")
-                    player2_result = results.get(match.players[1].
-                                                 first_name, "N/A")
+                    # Access players and their scores correctly
+                    player1_name = f"{match.match[0][0].first_name} {match.match[0][0].last_name}"
+                    player2_name = f"{match.match[1][0].first_name} {match.match[1][0].last_name}"
+                    player1_result = match.match[0][1]
+                    player2_result = match.match[1][1]
+
                     match_table.append([
                         f"Match {index}",
-                        match.players[0].first_name,  # Joueur 1
-                        player1_result,  # Résultat du Joueur 1
-                        match.players[1].first_name,  # Joueur 2
+                        player1_name,
+                        player1_result,
+                        player2_name,
                         player2_result
 
                     ])
