@@ -61,6 +61,9 @@ class TournamentController:
         tournaments = self.database.load_tournaments()
         uuid_index_map = (self.tournament_view.display_tournaments_list
                           (tournaments, filter_status=filter_status))
+        if not uuid_index_map:
+            self.tournament_view.display_message("no_tournaments_available")
+            return
         user_input = self.tournament_view.get_tournament_selection()
         selected_tournaments = self.process_tournament_choices(
             user_input, tournaments, uuid_index_map)
@@ -80,14 +83,14 @@ class TournamentController:
         while True:
             choice = self.tournament_view.show_tournament_launcher_menu(tournament)
             if choice == "1":
-                self.start_tournament(tournament)
+                self.run_tournament(tournament)
                 break
             elif choice == "2":
                 break
             else:
                 self.tournament_view.display_message("invalid_option")
 
-    def start_tournament(self, tournament):
+    def run_tournament(self, tournament):
         """
         Start or resume a tournament session.
 
@@ -95,19 +98,23 @@ class TournamentController:
             tournament (Tournament): The tournament instance to start or resume.
         """
         self.tournament_view.display_tournament_details(tournament)
-        self.run_tournament(tournament)
+        self.execute_tournament_rounds(tournament)
         self.collect_tournament_feedback(tournament)
         self.finalize_tournament(tournament)
 
     def collect_tournament_feedback(self, tournament):
         """Collect feedback from the user after the tournament ends."""
-
-        self.tournament_view.get_tournament_feedbacks(tournament)
+        while True:
+            feedback = self.tournament_view.get_tournament_feedbacks(tournament)
+            if feedback.strip():  # Check if the feedback is not empty
+                tournament.description = feedback
+                break
+            else:
+                self.tournament_view.display_message("empty_feedback")
 
     def finalize_tournament(self, tournament):
         """Finalize the tournament by setting its status and saving its state."""
         tournament.in_progress = False
-        tournament.finished = True
         self.database.save_tournament_update(tournament)
 
     def create_tournament(self):
@@ -180,11 +187,12 @@ class TournamentController:
             self.tournament_view.display_message("invalid_selection")
             return []
 
-    def run_tournament(self, tournament):
+    def execute_tournament_rounds(self, tournament):
         """Run or resume a tournament, iterating through rounds and handling matches."""
         tournament.in_progress = True
+        if tournament.rounds_completed:
+            return
         current_round_index = self.get_current_round_index(tournament)
-
         for round_number in range(current_round_index + 1,
                                   tournament.number_of_rounds + 1):
             round_instance = self.round_controller.get_or_create_round(
@@ -193,7 +201,8 @@ class TournamentController:
             self.round_controller.process_round_results(tournament, round_instance)
             self.tournament_view.display_scores(tournament)
             self.database.save_tournament_update(tournament)
-
+        tournament.rounds_completed = True
+        self.database.save_tournament_update(tournament)
     def get_current_round_index(self, tournament):
         """Determine the index of the current round to resume or start a new round."""
         for i in range(tournament.number_of_rounds):

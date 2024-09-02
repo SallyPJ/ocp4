@@ -7,7 +7,7 @@ class TournamentView(BaseView):
 
     def display_tournaments_menu(self):
         print("==========================================")
-        print("       [ Menu de Gestion des Tournois ]")
+        print("     [ Menu de Gestion des Tournois ]")
         print("==========================================")
         print("1. Créer un Nouveau Tournoi")
         print("2. Lancer/Reprendre un Tournoi")
@@ -43,8 +43,8 @@ class TournamentView(BaseView):
         print("*** FIN DU TOURNOI ***")
         feedback = input("Entrer vos remarques ou "
                          "commentaires généraux sur le tournoi:")
-        tournament.description = feedback if feedback \
-            else "Aucune remarque disponible."
+        return feedback
+
 
     def get_round_count(self, default_rounds: int = 4) -> int:
         """
@@ -114,16 +114,16 @@ class TournamentView(BaseView):
             # Tournament is not started if it's neither
             # in progress nor finished
             return [tournament for tournament in tournaments
-                    if not tournament.in_progress and not tournament.finished]
+                    if not tournament.in_progress and not tournament.rounds_completed]
         elif filter_status == "in_progress":
             return [tournament for tournament in tournaments
-                    if tournament.in_progress and not tournament.finished]
+                    if tournament.in_progress and not tournament.rounds_completed]
         elif filter_status == "finished":
             return [tournament for tournament in tournaments
-                    if tournament.finished]
+                    if tournament.rounds_completed and not tournament.in_progress]
         elif filter_status == "not_finished":
             return [tournament for tournament in tournaments
-                    if not tournament.finished]
+                    if tournament.in_progress]
         else:
             raise ValueError("Statut du filtre non valide. "
                              "Veuillez utiliser 'not_started', "
@@ -224,6 +224,8 @@ class TournamentView(BaseView):
                   f"Veuillez réessayer.")
         elif message_type == "no_tournament_selected":
             print("⚠️ Aucun tournoi sélectionné.")
+        elif message_type == "empty_feedback":
+            print("⚠️ Veuillez renseigner un commentaire.")
         else:
             super().display_message(message_type)
 
@@ -287,5 +289,14 @@ class TournamentView(BaseView):
                 print("Aucun match pour ce round.")
             print(f"Début du round: {round.start_time} "
                   f"- Fin du round : {round.end_time}")
+        table_data = []
+        for player in tournament.selected_players:
+            table_data.append([f"{player.first_name} {player.last_name}", player.total_points])
+
+        # Define headers
+        headers = ["Joueur", "Points"]
+
+        # Display the table using tabulate
+        print(tabulate(table_data, headers=headers, tablefmt="pretty", colalign=("left", "right")))
         print(f"Remarques et commentaires généraux sur "
               f"le tournoi : {tournament.description} ")

@@ -7,7 +7,7 @@ class Tournament:
     def __init__(self, name: str, location: str, start_date: str,
                  end_date: str, number_of_rounds: int,
                  number_of_players: int, description=None,
-                 finished=False, in_progress=False):
+                 rounds_completed=False, in_progress=False):
         self.reference = str(uuid.uuid4())
         self.name = name
         self.location = location
@@ -16,7 +16,7 @@ class Tournament:
         self.number_of_rounds = number_of_rounds
         self.number_of_players = number_of_players
         self.description = description
-        self.finished = finished
+        self.rounds_completed = rounds_completed
         self.in_progress = in_progress
         self.selected_players = []
         self.rounds = []
@@ -32,7 +32,7 @@ class Tournament:
             "number_of_rounds": self.number_of_rounds,
             "number_of_players": self.number_of_players,
             "description": self.description,
-            "finished": self.finished,
+            "rounds_completed": self.rounds_completed,
             "in_progress": self.in_progress,
             # Convert players to dict
             "selected_players": [player.to_dict() for player
@@ -51,7 +51,7 @@ class Tournament:
             data.get("number_of_rounds", 0),
             data.get("number_of_players", 0),
             data.get("description", ""),
-            data.get("finished", "Error"),
+            data.get("rounds_completed", "Error"),
             data.get("in_progress", "Error")
         )
         tournament.reference = data.get("reference", str(uuid.uuid4()))

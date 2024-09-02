@@ -50,3 +50,10 @@ class PlayerView(BaseView):
 
             except ValueError:
                 print("Veuillez entrer un nombre entier")
+
+    def display_message(self, message_type, tournament=None):
+        # Display a message to the user
+        if message_type == "player_created":
+            print("✅ Joueurs créé avec succès.")
+        else:
+            super().display_message(message_type)

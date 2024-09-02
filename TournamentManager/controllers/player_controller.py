@@ -1,7 +1,6 @@
 from models.database import Database
 from models.player import Player
 from views.player_view import PlayerView
-from views.base_view import BaseView
 
 
 class PlayerController:
@@ -15,7 +14,6 @@ class PlayerController:
         """
         self.player_view = PlayerView()
         self.database = Database()
-        self.base_view = BaseView()
 
     def manage_player(self):
         """
@@ -35,7 +33,7 @@ class PlayerController:
                 # Exit the loop and return to the main menu
                 break
             else:
-                self.base_view.display_message("invalid_option")
+                self.player_view.display_message("invalid_option")
 
     def create_player(self, last_name, first_name, date_of_birth, national_id):
         try:
@@ -44,7 +42,7 @@ class PlayerController:
             players = self.database.load_players()
             players.append(new_player)
             self.database.save_players(players)
-            print("Joueur créé avec succès !")
+            self.player_view.display_message("player_created")
         except Exception as e:
             print(f"Erreur lors de la création du joueur : {str(e)}")
 

@@ -3,6 +3,7 @@ from controllers.player_controller import PlayerController
 from controllers.report_controller import ReportController
 from controllers.tournament_controller import TournamentController
 from views.main_view import MainView
+from views.base_view import BaseView
 
 
 class MainController:
@@ -15,6 +16,7 @@ class MainController:
         self.player_controller = PlayerController()
         self.tournament_controller = TournamentController()
         self.report_controller = ReportController()
+        self.base_view = BaseView()
 
     def run(self):
         """
@@ -39,4 +41,4 @@ class MainController:
                 # Exit the application
                 sys.exit()
             else:
-                print("Option invalide. Veuillez réessayer.")
+                self.base_view.display_message("invalid_option")
