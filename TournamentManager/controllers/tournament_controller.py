@@ -1,12 +1,10 @@
-import random
-from utils import date_utils
 from models.database import Database
-#from models.match import Match
-#from models.round import Round
 from models.tournament import Tournament
 from views.player_view import PlayerView
 from controllers.round_controller import RoundController
 from views.tournament_view import TournamentView
+from views.base_view import BaseView
+
 
 
 
@@ -17,6 +15,7 @@ class TournamentController:
         self.player_view = PlayerView()
         self.tournament_view = TournamentView()
         self.round_controller = RoundController()
+        self.base_view = BaseView()
 
     def manage_tournament(self):
         """
@@ -47,7 +46,7 @@ class TournamentController:
                 break
 
             else:
-                self.tournament_view.display_message("invalid_option")
+                self.base_view.display_message("invalid_option")
 
     def handle_create_tournament(self):
         """Handles the creation of a new tournament."""
@@ -87,7 +86,7 @@ class TournamentController:
             elif choice == "2":
                 break
             else:
-                self.tournament_view.display_message("invalid_option")
+                self.base_view.display_message("invalid_option")
 
     def start_tournament(self, tournament):
         """
@@ -98,7 +97,6 @@ class TournamentController:
         """
         self.tournament_view.display_tournament_details(tournament)
         self.run_tournament(tournament)
-        self.tournament_view.display_final_scores(tournament)
         self.collect_tournament_feedback(tournament)
         self.finalize_tournament(tournament)
 
@@ -144,7 +142,7 @@ class TournamentController:
             selected_players = self.process_player_choices(player_choices, players)
 
             if not selected_players:
-                self.tournament_view.display_message("invalid_selection")
+                self.base_view.display_message("invalid_selection")
                 continue
 
             self.tournament_view.display_selected_players(selected_players)
@@ -164,7 +162,7 @@ class TournamentController:
             indices = [int(choice.strip()) - 1 for choice in choices.split(',')]
             return [players[idx] for idx in indices if 0 <= idx < len(players)]
         except ValueError:
-            self.tournament_view.display_message("invalid_selection")
+            self.base_view.display_message("invalid_selection")
             return []
 
     def process_tournament_choices(self, user_input, tournaments, uuid_index_map):
@@ -178,7 +176,7 @@ class TournamentController:
                 self.tournament_view.display_message("no_tournaments_selected")
             return selected_tournaments
         except ValueError:
-            self.tournament_view.display_message("invalid_selection")
+            self.base_view.display_message("invalid_selection")
             return []
 
     def run_tournament(self, tournament):
@@ -190,6 +188,7 @@ class TournamentController:
             round_instance = self.round_controller.get_or_create_round(tournament, round_number)
             self.round_controller.play_round(round_instance, tournament)
             self.round_controller.process_round_results(tournament, round_instance)
+            self.tournament_view.display_scores(tournament)
             self.database.save_tournament_update(tournament)
 
     def get_current_round_index(self, tournament):

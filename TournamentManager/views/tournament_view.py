@@ -37,6 +37,7 @@ class TournamentView:
         return name, location, start_date, end_date
 
     def get_tournament_feedbacks(self, tournament) :
+        print("*** FIN DU TOURNOI ***")
         feedback = input("Entrer vos remarques ou commentaires généraux sur le tournoi:")
         tournament.description = feedback if feedback else "Aucune remarque disponible."
 
@@ -180,6 +181,7 @@ class TournamentView:
                 print(f" - {player1_name} vs {player2_name} : {result1}-{result2}")
 
     def display_scores(self,tournament):
+        print("+-+-+-+ Scores cumulés des rounds +-+-+-+")
         table_data = []
         for player in tournament.selected_players:
             full_name = f"{player.last_name} {player.first_name} "
@@ -192,22 +194,14 @@ class TournamentView:
 
 
 
-    def display_final_scores(self, tournament):
-        # Display final scores of players
-        print("+-+-+-+ Scores finaux +-+-+-+")
-        self.display_scores(tournament)
-
 
     def display_message(self, message_type, tournament=None):
         # Display a message to the user
-        if message_type == "invalid_option":
-            print(f"❌ Option non valide. Veuillez réessayer")
-        elif message_type == "players_added":
+
+        if message_type == "players_added":
             print(f"✅ Joueurs ajoutés avec succès.")
         elif message_type == "no_players_selected":
             print(f"⚠️ Aucun joueur sélectionné.")
-        elif message_type == "invalid_selection":
-            print(f"❌ Sélection invalide.Veuillez réessayer.")
         elif message_type == "players_reset":
             print(f"⚠️ La sélection des joueurs a été réinitialisée.")
         elif message_type == "incorrect_players_number" and tournament is not None:

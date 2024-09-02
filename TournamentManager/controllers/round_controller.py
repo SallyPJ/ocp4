@@ -59,9 +59,6 @@ class RoundController:
         # Go through each match and play it if it hasn't finished yet
         for match in round_instance.matches:
             if not match.finished:
-                if match.in_progress:
-                    print(
-                        f"Reprise du match en cours entre {match.match[0][0].first_name} et {match.match[1][0].first_name}.")
                 self.play_match(round_instance, match, tournament)
 
         round_instance.end_time = date_utils.get_current_datetime()
@@ -113,18 +110,30 @@ class RoundController:
 
                 if choice == 1:
                     match.match[0][1] = 1
+                    for player, score in match.match:
+                        player.total_points += score
                     match.finished = True
+                    match.in_progress = False
+                    self.database.save_tournament_update(tournament)
                     print(f"\n✅  {match.match[0][0].first_name} {match.match[0][0].last_name} remporte la partie !\n")
                     break
                 elif choice == 2:
                     match.match[1][1] = 1
+                    for player, score in match.match:
+                        player.total_points += score
                     match.finished = True
+                    match.in_progress = False
+                    self.database.save_tournament_update(tournament)
                     print(f"\n✅  {match.match[1][0].first_name} {match.match[1][0].last_name} remporte la partie !\n")
                     break
                 elif choice == 3:
                     match.match[0][1] = 0.5
                     match.match[1][1] = 0.5
+                    for player, score in match.match:
+                        player.total_points += score
                     match.finished = True
+                    match.in_progress = False
+                    self.database.save_tournament_update(tournament)
                     print(f"\n🤝  La partie se termine par un match nul.\n")
                     break
                 else:
@@ -134,12 +143,9 @@ class RoundController:
                 print("Entrée invalide, veuillez entrer un nombre entier.")
 
         # Record total_points for each player
-        for player, score in match.match:
-            player.total_points += score
 
-        # Mark match as finished and save state
-        match.finished = True
-        match.in_progress = False
+
+
         print(f"Fin du match. Résultats: {match.get_match_results()}")
         self.database.save_tournament_update(tournament)
 
