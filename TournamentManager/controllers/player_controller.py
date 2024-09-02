@@ -1,6 +1,7 @@
 from models.database import Database
 from models.player import Player
 from views.player_view import PlayerView
+from views.base_view import BaseView
 
 
 class PlayerController:
@@ -14,6 +15,7 @@ class PlayerController:
         """
         self.player_view = PlayerView()
         self.database = Database()
+        self.base_view = BaseView()
 
     def manage_player(self):
         """
@@ -33,7 +35,7 @@ class PlayerController:
                 # Exit the loop and return to the main menu
                 break
             else:
-                print("Option invalide. Veuillez réessayer.")
+                self.base_view.display_message("invalid_option")
 
     def create_player(self, last_name, first_name, date_of_birth, national_id):
         try:
@@ -55,9 +57,10 @@ class PlayerController:
             Handles any exceptions that might occur during player creation.
         """
         try:
-            # Handle player creation
-            player_details = self.player_view.get_player_details()  # Get player details from the user
-            self.create_player(*player_details)  # Create the player using player controller
+            # Get player details from the user
+            player_details = self.player_view.get_player_details()
+            # Create the player using player controller
+            self.create_player(*player_details)
         except Exception as e:
             print(f"Une erreur est survenue lors de la création du joueur : {str(e)}")
 
@@ -70,32 +73,9 @@ class PlayerController:
             Handles any exceptions that might occur while loading or displaying players.
         """
         try:
-            # Display registered players by alphabetical order
-            players = sorted(self.database.load_players())  # Load and sort players alphabetically
-            self.player_view.display_players_list(players)  # Display the sorted list of players
+            # Load and sort players alphabetically
+            players = sorted(self.database.load_players())
+            # Display the sorted list of players
+            self.player_view.display_players_list(players)
         except Exception as e:
             print(f"Une erreur est survenue lors de l'affichage des joueurs : {str(e)}")
-
-    def create_player(self, last_name, first_name, date_of_birth, national_id):
-        """
-        Creates a new player with the provided details and saves the player to the database.
-
-        Args:
-            last_name (str): The last name of the player.
-            first_name (str): The first name of the player.
-            date_of_birth (str): The date of birth of the player in the format 'DD/MM/YYYY'.
-            national_id (str): The national ID of the player.
-
-        Exceptions:
-            Handles any exceptions that might occur while creating or saving the player.
-        """
-
-        try:
-            new_player = Player(last_name, first_name, date_of_birth, national_id)
-            players = self.database.load_players()
-            players.append(new_player)
-            self.database.save_players(players)
-            print("Player successfully created!")
-        except Exception as e:
-            print(f"Error while creating the player: {str(e)}")
-

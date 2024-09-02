@@ -10,10 +10,3 @@ class MainView:
         print("4. Quitter")
         print("==========================================")
         return input("Choisir une option: ")
-
-
-
-
-
-
-
