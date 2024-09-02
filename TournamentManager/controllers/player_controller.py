@@ -57,9 +57,10 @@ class PlayerController:
             Handles any exceptions that might occur during player creation.
         """
         try:
-            # Handle player creation
-            player_details = self.player_view.get_player_details()  # Get player details from the user
-            self.create_player(*player_details)  # Create the player using player controller
+            # Get player details from the user
+            player_details = self.player_view.get_player_details()
+            # Create the player using player controller
+            self.create_player(*player_details)
         except Exception as e:
             print(f"Une erreur est survenue lors de la création du joueur : {str(e)}")
 
@@ -72,11 +73,9 @@ class PlayerController:
             Handles any exceptions that might occur while loading or displaying players.
         """
         try:
-            # Display registered players by alphabetical order
-            players = sorted(self.database.load_players())  # Load and sort players alphabetically
-            self.player_view.display_players_list(players)  # Display the sorted list of players
+            # Load and sort players alphabetically
+            players = sorted(self.database.load_players())
+            # Display the sorted list of players
+            self.player_view.display_players_list(players)
         except Exception as e:
             print(f"Une erreur est survenue lors de l'affichage des joueurs : {str(e)}")
-
-
-

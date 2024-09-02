@@ -3,9 +3,6 @@ from models.tournament import Tournament
 from views.player_view import PlayerView
 from controllers.round_controller import RoundController
 from views.tournament_view import TournamentView
-from views.base_view import BaseView
-
-
 
 
 class TournamentController:
@@ -15,13 +12,13 @@ class TournamentController:
         self.player_view = PlayerView()
         self.tournament_view = TournamentView()
         self.round_controller = RoundController()
-        self.base_view = BaseView()
 
     def manage_tournament(self):
         """
         Manage the tournament lifecycle.
 
-        This method repeatedly prompts the user for input until a valid choice is made.
+        This method repeatedly prompts the user for input
+        until a valid choice is made.
         1. Create a tournament
         2. Display not_started or in_progress tournaments
         3. Display finished tournaments
@@ -46,7 +43,7 @@ class TournamentController:
                 break
 
             else:
-                self.base_view.display_message("invalid_option")
+                self.tournament_view.display_message("invalid_option")
 
     def handle_create_tournament(self):
         """Handles the creation of a new tournament."""
@@ -58,13 +55,15 @@ class TournamentController:
         Handles the selection of tournaments based on their status.
 
         Args:
-            filter_status (str): The status to filter tournaments by ("not_finished" or "finished").
+            filter_status (str): The status to filter tournaments
+            by ("not_finished" or "finished").
         """
         tournaments = self.database.load_tournaments()
-        uuid_index_map = self.tournament_view.display_tournaments_list(tournaments, filter_status=filter_status)
+        uuid_index_map = (self.tournament_view.display_tournaments_list
+                          (tournaments, filter_status=filter_status))
         user_input = self.tournament_view.get_tournament_selection()
-        selected_tournaments = self.process_tournament_choices(user_input, tournaments, uuid_index_map)
-
+        selected_tournaments = self.process_tournament_choices(
+            user_input, tournaments, uuid_index_map)
         for tournament in selected_tournaments:
             if filter_status == "finished":
                 self.tournament_view.display_tournament_report(tournament)
@@ -86,7 +85,7 @@ class TournamentController:
             elif choice == "2":
                 break
             else:
-                self.base_view.display_message("invalid_option")
+                self.tournament_view.display_message("invalid_option")
 
     def start_tournament(self, tournament):
         """
@@ -112,7 +111,8 @@ class TournamentController:
         self.database.save_tournament_update(tournament)
 
     def create_tournament(self):
-        """Create a new tournament by collecting user input and initializing a Tournament object."""
+        """Create a new tournament by collecting user input
+        and initializing a Tournament object."""
         details = self.tournament_view.get_tournament_details()
         number_of_rounds = self.tournament_view.get_round_count()
         number_of_players = self.player_view.get_player_count()
@@ -141,20 +141,19 @@ class TournamentController:
             player_choices = self.tournament_view.select_players_input()
             selected_players = self.process_player_choices(player_choices, players)
 
-            if not selected_players:
-                self.base_view.display_message("invalid_selection")
-                continue
-
-            self.tournament_view.display_selected_players(selected_players)
+            print(
+                f"Nombre de joueurs sélectionnés: {len(selected_players)}, "
+                f"Nombre requis: {tournament.number_of_players}")
             if len(selected_players) == tournament.number_of_players:
+                self.tournament_view.display_selected_players(selected_players)
                 if self.tournament_view.confirm_selection().lower() == 'o':
                     return selected_players
                 else:
                     self.tournament_view.display_message("players_reset")
-                    selected_players.clear()
-            else:
-                self.tournament_view.display_message("incorrect_players_number")
 
+            else:
+                self.tournament_view.display_message("incorrect_players_number",
+                                                     tournament)
 
     def process_player_choices(self, choices, players):
         """Process the user's player selection input."""
@@ -162,21 +161,23 @@ class TournamentController:
             indices = [int(choice.strip()) - 1 for choice in choices.split(',')]
             return [players[idx] for idx in indices if 0 <= idx < len(players)]
         except ValueError:
-            self.base_view.display_message("invalid_selection")
+            self.tournament_view.display_message("invalid_selection")
             return []
 
     def process_tournament_choices(self, user_input, tournaments, uuid_index_map):
         """Process the user's tournament selection input."""
         try:
             indices = [int(choice.strip()) - 1 for choice in user_input.split(',')]
-            selected_uuids = {uuid_index_map.get(idx + 1) for idx in indices if 0 <= idx < len(tournaments)}
-            selected_tournaments = [tournament for tournament in tournaments if tournament.reference in selected_uuids]
+            selected_uuids = {uuid_index_map.get(idx + 1) for idx in indices
+                              if 0 <= idx < len(tournaments)}
+            selected_tournaments = [tournament for tournament in tournaments
+                                    if tournament.reference in selected_uuids]
 
             if not selected_tournaments:
                 self.tournament_view.display_message("no_tournaments_selected")
             return selected_tournaments
         except ValueError:
-            self.base_view.display_message("invalid_selection")
+            self.tournament_view.display_message("invalid_selection")
             return []
 
     def run_tournament(self, tournament):
@@ -184,8 +185,10 @@ class TournamentController:
         tournament.in_progress = True
         current_round_index = self.get_current_round_index(tournament)
 
-        for round_number in range(current_round_index + 1, tournament.number_of_rounds + 1):
-            round_instance = self.round_controller.get_or_create_round(tournament, round_number)
+        for round_number in range(current_round_index + 1,
+                                  tournament.number_of_rounds + 1):
+            round_instance = self.round_controller.get_or_create_round(
+                tournament, round_number)
             self.round_controller.play_round(round_instance, tournament)
             self.round_controller.process_round_results(tournament, round_instance)
             self.tournament_view.display_scores(tournament)
@@ -203,8 +206,3 @@ class TournamentController:
         tournaments = self.database.load_tournaments()
         tournaments.append(tournament)
         self.database.save_tournament(tournaments)
-
-
-
-
-

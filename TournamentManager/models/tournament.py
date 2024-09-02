@@ -3,10 +3,11 @@ from models.round import Round
 from models.player import Player
 
 
-
 class Tournament:
-    def __init__(self, name: str, location: str, start_date: str, end_date: str, number_of_rounds: int,
-                 number_of_players: int, description=None, finished=False, in_progress=False):
+    def __init__(self, name: str, location: str, start_date: str,
+                 end_date: str, number_of_rounds: int,
+                 number_of_players: int, description=None,
+                 finished=False, in_progress=False):
         self.reference = str(uuid.uuid4())
         self.name = name
         self.location = location
@@ -33,7 +34,9 @@ class Tournament:
             "description": self.description,
             "finished": self.finished,
             "in_progress": self.in_progress,
-            "selected_players": [player.to_dict() for player in self.selected_players],  # Convert players to dict
+            # Convert players to dict
+            "selected_players": [player.to_dict() for player
+                                 in self.selected_players],
             "rounds": [round.to_dict() for round in self.rounds]
         }
 
@@ -52,8 +55,9 @@ class Tournament:
             data.get("in_progress", "Error")
         )
         tournament.reference = data.get("reference", str(uuid.uuid4()))
-        tournament.selected_players = [Player.from_dict(player_data) for player_data in data.get("selected_players", [])]
-        tournament.rounds = [Round.from_dict(round_data,tournament) for round_data in data.get("rounds", [])]
+        tournament.selected_players = \
+            [Player.from_dict(player_data) for player_data
+             in data.get("selected_players", [])]
+        tournament.rounds = [Round.from_dict(round_data, tournament)
+                             for round_data in data.get("rounds", [])]
         return tournament
-
-

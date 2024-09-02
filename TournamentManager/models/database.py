@@ -25,7 +25,8 @@ class Database:
     def save_players(cls, players):
         # Save players to JSON file
         with open(cls.PLAYERS_FILE, 'w', encoding='utf-8') as file:
-            json.dump([player.to_dict() for player in players], file, ensure_ascii=False, indent=4)
+            json.dump([player.to_dict() for player in players],
+                      file, ensure_ascii=False, indent=4)
 
     @classmethod
     def load_tournaments(cls):
@@ -44,20 +45,19 @@ class Database:
     def save_tournament(cls, tournaments):
         # Save tournaments to JSON file
         with open(cls.TOURNAMENTS_FILE, 'w', encoding='utf-8') as file:
-            json.dump([tournament.to_dict() for tournament in tournaments], file, ensure_ascii=False, indent=4)
+            json.dump([tournament.to_dict() for tournament in tournaments],
+                      file, ensure_ascii=False, indent=4)
 
     @classmethod
     def save_tournament_update(cls, tournament):
         tournaments = cls.load_tournaments()
 
-        # Rechercher et mettre à jour le tournoi dans la liste
+        # Find and update tournament
         for i, existing_tournament in enumerate(tournaments):
             if existing_tournament.reference == tournament.reference:
                 tournaments[i] = tournament
                 cls.save_tournament(tournaments)
                 return
-
-        # Si aucun tournoi n'a été trouvé, lever une exception
         raise ValueError(
-            f"Le tournoi avec la référence {tournament.reference} n'a pas été trouvé et donc pas mis à jour.")
-
+            f"Le tournoi avec la référence {tournament.reference} "
+            f"n'a pas été trouvé et donc pas mis à jour.")

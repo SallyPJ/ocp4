@@ -2,7 +2,8 @@ import uuid
 
 
 class Player:
-    def __init__(self, last_name, first_name, date_of_birth, national_id, total_points=0):
+    def __init__(self, last_name, first_name, date_of_birth,
+                 national_id, total_points=0):
         self.id = str(uuid.uuid4())
         self.last_name = last_name
         self.first_name = first_name
@@ -15,7 +16,8 @@ class Player:
         return self.last_name.lower() < other.last_name.lower()
 
     def __str__(self):
-        return f"{self.last_name} {self.first_name} {self.date_of_birth} {self.national_id}"
+        return (f"{self.last_name} {self.first_name} "
+                f"{self.date_of_birth} {self.national_id}")
 
     def to_dict(self):
         # Convert Player object to dictionary
@@ -35,16 +37,16 @@ class Player:
         return cls(
             data.get("last_name", "Unknown"),
             data.get("first_name", "Unknown"),
-            data.get("date_of_birth", "01/01/1900"),  # Fournissez une date par défaut ou gérez l'absence autrement
+            data.get("date_of_birth", "01/01/1900"),
             data.get("national_id", "000000"),
             data.get("total_points", 0)
         )
 
     def add_opponent(self, opponent):
-        # Ajoute un adversaire à la liste
+        # Add an opponent to the list
         if opponent not in self.opponents:
             self.opponents.append(opponent)
 
     def has_played_against(self, opponent):
-        # Vérifie si le joueur a déjà joué contre l'adversaire
+        # Check if the player has played against the specified opponent
         return opponent in self.opponents

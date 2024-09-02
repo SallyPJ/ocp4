@@ -1,21 +1,22 @@
 from models.round import Round
-from models.match import Match
 from utils import date_utils
 from models.database import Database
+
 
 class RoundController:
     def __init__(self):
         self.database = Database()
+
     def update_scores_from_finished_matches(self, tournament):
         """Update players' scores based on the results of finished matches."""
         for round in tournament.rounds:
             for match in round.matches:
                 if match.finished:
-                    # Assume the results dictionary stores scores with player first names as keys
+                    # Assume the results dictionary stores
+                    # scores with player first names as keys
                     for player in match.players:
                         player_score = match.results.get(player.first_name, 0)
                         player.total_points += player_score
-
 
     def get_current_round(self, tournament, round_number):
         """
@@ -52,10 +53,8 @@ class RoundController:
         if not round_instance.matches:
             round_instance.create_pairs()
             round_instance.matches = round_instance.pairs
-            self.database.save_tournament_update(tournament)  # Sauvegarde de l'état du tournoi entier
-
-
-
+            # Sauvegarde de l'état du tournoi entier
+            self.database.save_tournament_update(tournament)
         # Go through each match and play it if it hasn't finished yet
         for match in round_instance.matches:
             if not match.finished:
@@ -77,19 +76,25 @@ class RoundController:
         and prompts the user to input the match result.
 
         Args:
-            round_instance (Round): The current round instance in which the match is being played.
+            round_instance (Round): The current round instance
+            in which the match is being played.
             match (Match): The match instance to be played.
             tournament (Tournament): The tournament instance.
             match_number (int): The number of the match in the round.
         """
         if match.finished:
             print(
-                f"⚠️  Ce match entre {match.match[0][0].first_name} {match.match[0][0].last_name} et {match.match[1][0].first_name} {match.match[1][0].last_name} est déjà terminé.")
+                f"⚠️  Ce match entre {match.match[0][0].first_name} "
+                f"{match.match[0][0].last_name} et "
+                f"{match.match[1][0].first_name} "
+                f"{match.match[1][0].last_name} est déjà terminé.")
             return
 
         if match.in_progress:
             print(
-                f"⏸️  Reprise du match en cours entre {match.match[0][0].first_name} {match.match[0][0].last_name} et {match.match[1][0].first_name} {match.match[1][0].last_name}.")
+                f"⏸️  Reprise du match en cours entre {match.match[0][0].first_name} "
+                f"{match.match[0][0].last_name} et {match.match[1][0].first_name} "
+                f"{match.match[1][0].last_name}.")
         else:
             match.in_progress = True
             self.database.save_tournament_update(tournament)
@@ -98,16 +103,19 @@ class RoundController:
         match_number = self.get_next_match_number(round_instance)
         print(f"\n=== ROUND {round_instance.round_number} : MATCH {match_number}  ===")
         print(
-            f"♟️ {match.match[0][0].first_name} {match.match[0][0].last_name} (Noirs) vs {match.match[1][0].first_name} {match.match[1][0].last_name} (Blancs)")
+            f"♟️ {match.match[0][0].first_name} {match.match[0][0].last_name} "
+            f"(Noirs) vs {match.match[1][0].first_name} {match.match[1][0].last_name}"
+            f" (Blancs)")
         print("=========================================\n")
         while True:
             try:
                 print("Veuillez choisir le résultat du match :")
-                print(f"1️⃣  Victoire pour {match.match[0][0].first_name} {match.match[0][0].last_name} ")
-                print(f"2️⃣  Victoire pour {match.match[1][0].first_name} {match.match[1][0].last_name} ")
+                print(f"1️⃣  Victoire pour {match.match[0][0].first_name} "
+                      f"{match.match[0][0].last_name} ")
+                print(f"2️⃣  Victoire pour {match.match[1][0].first_name} "
+                      f"{match.match[1][0].last_name} ")
                 print("3️⃣  Egalité")
                 choice = int(input("Votre choix (1, 2, 3) : "))
-
                 if choice == 1:
                     match.match[0][1] = 1
                     for player, score in match.match:
@@ -115,7 +123,8 @@ class RoundController:
                     match.finished = True
                     match.in_progress = False
                     self.database.save_tournament_update(tournament)
-                    print(f"\n✅  {match.match[0][0].first_name} {match.match[0][0].last_name} remporte la partie !\n")
+                    print(f"\n✅  {match.match[0][0].first_name} "
+                          f"{match.match[0][0].last_name} remporte la partie !\n")
                     break
                 elif choice == 2:
                     match.match[1][1] = 1
@@ -124,7 +133,8 @@ class RoundController:
                     match.finished = True
                     match.in_progress = False
                     self.database.save_tournament_update(tournament)
-                    print(f"\n✅  {match.match[1][0].first_name} {match.match[1][0].last_name} remporte la partie !\n")
+                    print(f"\n✅  {match.match[1][0].first_name} "
+                          f"{match.match[1][0].last_name} remporte la partie !\n")
                     break
                 elif choice == 3:
                     match.match[0][1] = 0.5
@@ -134,21 +144,15 @@ class RoundController:
                     match.finished = True
                     match.in_progress = False
                     self.database.save_tournament_update(tournament)
-                    print(f"\n🤝  La partie se termine par un match nul.\n")
+                    print("\n🤝  La partie se termine par un match nul.\n")
                     break
                 else:
                     print("Choix invalide, veuillez entrer 1, 2 ou 3")
-
             except ValueError:
                 print("Entrée invalide, veuillez entrer un nombre entier.")
-
         # Record total_points for each player
-
-
-
         print(f"Fin du match. Résultats: {match.get_match_results()}")
         self.database.save_tournament_update(tournament)
-
 
     def get_round_results(self, round_instance):
         # Return match results
@@ -157,24 +161,27 @@ class RoundController:
     def process_round_results(self, tournament, round_instance):
         for match in round_instance.matches:
             results = match.get_match_results()
-
             # Déballer les noms des joueurs et leurs scores
             try:
                 (player1_name, score1), (player2_name, score2) = list(results.items())
             except ValueError:
-                print(f"Erreur dans le format du résultat du match: {results}")
+                print(f"Erreur dans le format du résultat du match: "
+                      f"{results}")
                 continue
-
             # Trouver les objets Player correspondant aux noms
             try:
-                player1 = next(player for player in tournament.selected_players if
-                               f"{player.first_name} {player.last_name}" == player1_name)
-                player2 = next(player for player in tournament.selected_players if
-                               f"{player.first_name} {player.last_name}" == player2_name)
+                player1 = next(player for player
+                               in tournament.selected_players
+                               if f"{player.first_name} {player.last_name}"
+                               == player1_name)
+                player2 = next(player for player
+                               in tournament.selected_players
+                               if f"{player.first_name} {player.last_name}"
+                               == player2_name)
             except StopIteration:
-                print(f"Erreur: Impossible de trouver les joueurs pour le match {player1_name} vs {player2_name}")
+                print(f"Erreur: Impossible de trouver les joueurs pour le match "
+                      f"{player1_name} vs {player2_name}")
                 continue
-
             # Ajouter les adversaires aux listes correspondantes
             player1.add_opponent(player2)
             player2.add_opponent(player1)
@@ -193,7 +200,8 @@ class RoundController:
         round_instance = self.get_current_round(tournament, round_number)
         if round_instance is None:
             is_first_round = (round_number == 1)
-            round_instance = Round(tournament, round_number=round_number, is_first_round=is_first_round)
+            round_instance = Round(tournament, round_number=round_number,
+                                   is_first_round=is_first_round)
             round_instance.start_time = date_utils.get_current_datetime()
             tournament.rounds.append(round_instance)
             self.database.save_tournament_update(tournament)

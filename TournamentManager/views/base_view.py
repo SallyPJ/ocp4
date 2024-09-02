@@ -1,8 +1,8 @@
 
 class BaseView:
 
-    def display_message(self, message_type):
+    def display_message(self, message_type, tournament=None):
         if message_type == "invalid_option":
-            print(f"❌ Option non valide. Veuillez réessayer")
+            print("❌ Option non valide. Veuillez réessayer")
         elif message_type == "invalid_selection":
-            print(f"❌ Sélection invalide. Veuillez réessayer.")
+            print("❌ Sélection invalide. Veuillez réessayer.")

@@ -26,5 +26,3 @@ def get_current_datetime():
 
 def parse_date(date_str):
     return datetime.strptime(date_str, "%d/%m/%Y")
-
-
