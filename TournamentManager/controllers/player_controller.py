@@ -29,7 +29,7 @@ class PlayerController:
             elif choice == "2":
                 self.delete_player()
             elif choice == "3":
-                self.display_registered_players_alphabetically()
+                self.display_sorted_players()
             elif choice == "4":
                 break
             else:
@@ -64,12 +64,8 @@ class PlayerController:
             If an error occurs during the deletion process, an error message is displayed.
         """
         try:
-            players = self.sort_players_alphabetically()
-            if not players:
-                self.player_view.display_message("no_players")
-                return
+            players = self.display_sorted_players()
             while True:
-                self.player_view.display_players_list(players)
                 self.player_view.display_quit_message()
                 selected_players = self.select_multiple_players(players)
                 if selected_players == "quit":
@@ -77,6 +73,7 @@ class PlayerController:
                     break
                 if not selected_players:
                     self.player_view.display_message("no_players_selected")
+                    continue
                 if self.confirm_players_selection(selected_players):
                     for player in selected_players:
                         players.remove(player)
@@ -88,21 +85,23 @@ class PlayerController:
         except Exception as e:
             self.player_view.display_message("player_deletion_error", error_message=str(e))
 
-
-    def display_registered_players_alphabetically(self):
+    def display_sorted_players(self):
         """
-        Retrieves and displays a list of registered players, sorted alphabetically
-        by their last name.
+        Displays a list of registered players in alphabetical order.
+
+        Returns:
+            list: A sorted list of player objects.
 
         Exceptions:
-            Handles any exceptions that might occur while loading or displaying players.
+            If an error occurs during the player display process, an error message is displayed.
         """
-        try:
-            players = self.sort_players_alphabetically()
-            if players:
-                self.player_view.display_players_list(players)
-        except Exception as e:
-            self.player_view.display_message("players_display_error", error_message=str(e))
+        players = self.sort_players_alphabetically()
+        if not players:
+            self.player_view.display_message("no_players")
+            return None
+        self.player_view.display_players_list(players)
+        return players
+
 
     def select_multiple_players(self, players):
         """
@@ -178,3 +177,23 @@ class PlayerController:
         if not players:
             self.player_view.display_message("no_players")
         return players
+
+    def get_player_count(self):
+        """
+        Gets and validates the number of players from user input.
+
+        Returns:
+            int: The validated number of players.
+        """
+        while True:
+            user_input = self.player_view.prompt_for_player_count()
+            try:
+                number_of_players = int(user_input)
+                if number_of_players > 0 and number_of_players % 2 == 0:
+                    return number_of_players
+                elif number_of_players <= 0:
+                    self.player_view.display_invalid_player_count_message("negative_or_zero")
+                else:
+                    self.player_view.display_invalid_player_count_message("not_even")
+            except ValueError:
+                self.player_view.display_invalid_player_count_message("not_integer")

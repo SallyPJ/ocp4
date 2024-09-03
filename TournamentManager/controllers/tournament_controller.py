@@ -27,19 +27,14 @@ class TournamentController:
         """
         while True:
             choice = self.tournament_view.display_tournaments_menu()
-
             if choice == "1":
                 self.handle_create_tournament()
-
             elif choice == "2":
                 self.handle_tournament_selection("not_finished")
-
             elif choice == "3":
                 self.handle_tournament_selection("finished")
-
             elif choice == "4":
                 break
-
             else:
                 self.tournament_view.display_message("invalid_option")
 
@@ -120,7 +115,7 @@ class TournamentController:
         and initializing a Tournament object."""
         details = self.tournament_view.get_tournament_details()
         number_of_rounds = self.tournament_view.get_round_count()
-        number_of_players = self.player_view.get_player_count()
+        number_of_players = self.player_controller.get_player_count()
         tournament = Tournament(*details, number_of_rounds, number_of_players)
 
         self.add_players_to_tournament(tournament)
@@ -130,10 +125,8 @@ class TournamentController:
 
     def add_players_to_tournament(self, tournament):
         """Select and add players to the tournament."""
-        players = self.player_controller.sort_players_alphabetically()
-        self.player_view.display_players_list(players)
+        players = self.player_controller.display_sorted_players()
         selected_players = self.player_controller.select_multiple_players(players)
-
         if selected_players:
             tournament.selected_players.extend(selected_players)
             self.tournament_view.display_message("players_added")

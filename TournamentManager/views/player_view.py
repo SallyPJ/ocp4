@@ -42,25 +42,10 @@ class PlayerView(BaseView):
         headers = ["No", "Identifiant", "Nom", "Prénom", "Date de naissance", ]
         print(tabulate(table, headers, tablefmt="pretty", colalign="left"))
 
-    def get_player_count(self):
-        # Get number of players from user input
-        while True:
-            try:
-                number_of_players = int(input("Entrer le nombre de joueurs: "))
-                if number_of_players > 0 and (number_of_players % 2) == 0:
-                    return number_of_players
-                elif number_of_players <= 0:
-                    print("Le nombre de joueurs doit être un nombre positif.")
-                else:
-                    print("Le nombre de joueurs doit être un chiffre pair")
-
-            except ValueError:
-                print("Veuillez entrer un nombre entier")
-
     def display_message(self, message_type, players=None, error_message=None):
         # Display a message to the user
         if message_type == "player_created":
-            print("✅ Joueurs créé avec succès.")
+            print("✅ Joueur créé avec succès.")
         elif message_type == "player_creation_error" and error_message:
             print(f"❌ Erreur lors de la création du joueur : {error_message}")
         elif message_type == "players_display_error" and error_message:
@@ -93,3 +78,26 @@ class PlayerView(BaseView):
     def confirm_selection(self):
         # Confirm player selection
         return input("Confirmez-vous la sélection du ou des joueurs suivants ? (O/N): ")
+
+    def prompt_for_player_count(self):
+        """
+        Prompts the user to enter the number of players.
+
+        Returns:
+            str: The user's input as a string.
+        """
+        return input("Entrer le nombre de joueurs: ")
+
+    def display_invalid_player_count_message(self, message_type):
+        """
+        Displays an error message if the entered player count is invalid.
+
+        Args:
+            message_type (str): The type of error message to display.
+        """
+        if message_type == "negative_or_zero":
+            print("Le nombre de joueurs doit être un nombre positif.")
+        elif message_type == "not_even":
+            print("Le nombre de joueurs doit être un chiffre pair.")
+        elif message_type == "not_integer":
+            print("Veuillez entrer un nombre entier.")
