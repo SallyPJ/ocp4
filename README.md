@@ -77,22 +77,22 @@ The report will be generated and saved as tournament_report.html in the root dir
 The HTML file will automatically open in your default web browser.
 
 ## Outputs
-#### Tournament HTML Report
+#### - Tournament HTML Report
 File: tournament_report.html  
 Location: Root directory  
 Description: A detailed HTML report providing an overview of all tournaments, including player lists, match results, and tournament details.  
 
-#### Player Data File
+#### - Player Data File
 File: players.json  
 Location: data directory  
 Description: A JSON file storing all registered player information, including names, national IDs, and accumulated points.  
 
-#### Tournament Data File
+#### - Tournament Data File
 File: tournaments.json  
 Location: data directory  
 Description: A JSON file containing tournament details such as name, location, dates, player lists, rounds, and match results.  
 
-#### Console Outputs
+#### - Console Outputs
 Description: Various messages, menus, and data summaries are displayed in the console to guide the user through the application's functionality and provide feedback.
 
 ## Running Flake8 with HTML Report
