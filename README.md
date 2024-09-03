@@ -19,7 +19,7 @@ Open Git Bash or your preferred terminal application.
 Navigate to the directory where you want to clone the project using the cd (change directory) command.  
 Run the following command to clone the repository:
  ```bash
-git clone https://github.com/SallyPJ/ocp2.git
+git clone https://github.com/SallyPJ/ocp4.git
  ```
 
 ### 2. Create and activate a virtual environment in the project folder
@@ -48,29 +48,29 @@ python main.py
  ```
 ## Usage
 
-#### Main Menu:
-<img width="266" alt="image" src="https://github.com/user-attachments/assets/e1fddf0e-b15c-4adb-bbca-16c0155d867a">
+#### Main Menu :
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/e1fddf0e-b15c-4adb-bbca-16c0155d867a">
 
 1. Manage players, create a new player, or view the list of registered players.
 2. Create a new tournament, manage existing tournaments, or view finished tournaments.
 3. Generate reports on tournaments (in HTML).
 
-#### Player Management:
-<img width="267" alt="image" src="https://github.com/user-attachments/assets/a1b8051c-c960-4421-ac89-57a64da5f71f">
+#### Player Management :
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/b9ae47b7-efdf-40a6-837b-d0f880e54957">
 
 1. Create a new player by providing their last name, first name, date of birth, and national chess ID.
 2. Delete one or several players.
 3. Display the list of all registered players.
 
-#### Tournament Management:
-<img width="262" alt="image" src="https://github.com/user-attachments/assets/90a10b53-6e24-497b-ba3c-553411fa6c51">
+#### Tournament Management :
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/8c01ab7c-f66e-437e-8fe5-bbb0c38c5102">
 
 1. Create a new tournament by specifying details such as name, location, dates, number of rounds, etc.
 2. Start or resume an existing tournament.
 3. List and Details of Finished Tournaments: View details of finished tournaments.
 
-#### Data Management (Reports):
-<img width="264" alt="image" src="https://github.com/user-attachments/assets/44b8db16-825e-466b-88f7-18fe6e4f40d4">
+#### Data Management (Reports) :
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/44b8db16-825e-466b-88f7-18fe6e4f40d4">
 
 1. Tournament Overview (HTML): Generate an HTML report of all tournaments.
 The report will be generated and saved as tournament_report.html in the root directory of the project.  
