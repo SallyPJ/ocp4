@@ -1,7 +1,7 @@
+from utils import date_utils
 from models.database import Database
 from models.player import Player
 from views.player_view import PlayerView
-
 
 class PlayerController:
     """
@@ -12,7 +12,7 @@ class PlayerController:
         self.player_view = PlayerView()
         self.database = Database()
 
-    def manage_player(self):
+    def run_player_menu(self):
         """
        Main loop to manage player operations. Presents a menu to the user and
         executes the corresponding actions based on the user's choice.
@@ -33,7 +33,7 @@ class PlayerController:
             elif choice == "4":
                 break
             else:
-                self.player_view.display_message("invalid_option")
+                self.player_view.display_feedback("invalid_option")
 
     def create_player(self):
         """
@@ -44,14 +44,14 @@ class PlayerController:
             If an error occurs during the player creation process, an error message is displayed.
         """
         try:
-            player_details = self.player_view.get_player_details()
+            player_details = self.get_player_details()
             new_player = Player(*player_details)
             players = self.database.load_players()
             players.append(new_player)
             self.database.save_players(players)
-            self.player_view.display_message("player_created")
+            self.player_view.display_feedback("player_created")
         except Exception as e:
-            self.player_view.display_message("player_creation_error", error_message=str(e))
+            self.player_view.display_feedback("player_creation_error", error_message=str(e))
 
     def delete_player(self):
         """
@@ -69,21 +69,21 @@ class PlayerController:
                 self.player_view.display_quit_message()
                 selected_players = self.select_multiple_players(players)
                 if selected_players == "quit":
-                    self.player_view.display_message("operation_cancelled")
+                    self.player_view.display_feedback("operation_cancelled")
                     break
                 if not selected_players:
-                    self.player_view.display_message("no_players_selected")
+                    self.player_view.display_feedback("no_players_selected")
                     continue
                 if self.confirm_players_selection(selected_players):
                     for player in selected_players:
                         players.remove(player)
                     self.database.save_players(players)
-                    self.player_view.display_message("players_deleted", selected_players)
+                    self.player_view.display_feedback("players_deleted", selected_players)
                     break
                 else:
                     continue
         except Exception as e:
-            self.player_view.display_message("player_deletion_error", error_message=str(e))
+            self.player_view.display_feedback("player_deletion_error", error_message=str(e))
 
     def display_sorted_players(self):
         """
@@ -97,7 +97,7 @@ class PlayerController:
         """
         players = self.sort_players_alphabetically()
         if not players:
-            self.player_view.display_message("no_players")
+            self.player_view.display_feedback("no_players")
             return None
         self.player_view.display_players_list(players)
         return players
@@ -138,7 +138,7 @@ class PlayerController:
 
             return selected_players
         except ValueError:
-            self.player_view.display_message("invalid_selection")
+            self.player_view.display_feedback("invalid_selection")
             return []
 
     def confirm_players_selection(self, selected_players):
@@ -157,11 +157,11 @@ class PlayerController:
         if confirmation == 'o':
             return True  # Proceed with the deletion
         elif confirmation == 'n':
-            self.player_view.display_message("players_reset")
+            self.player_view.display_feedback("players_reset")
             selected_players.clear()  # Clear the selection
             return False  # Indicate that the user wants to restart the selection
         else:
-            self.player_view.display_message("invalid_option")  # Invalid option
+            self.player_view.display_feedback("invalid_option")  # Invalid option
 
     def sort_players_alphabetically(self):
         """
@@ -175,7 +175,7 @@ class PlayerController:
         """
         players = sorted(self.database.load_players(), key=lambda player: player.last_name)
         if not players:
-            self.player_view.display_message("no_players")
+            self.player_view.display_feedback("no_players")
         return players
 
     def get_player_count(self):
@@ -197,3 +197,17 @@ class PlayerController:
                     self.player_view.display_invalid_player_count_message("not_even")
             except ValueError:
                 self.player_view.display_invalid_player_count_message("not_integer")
+
+    def get_player_details(self):
+        """
+        Collect player details from user input and validate the date of birth.
+
+        Returns:
+            tuple: A tuple containing last_name, first_name, date_of_birth, and national_id.
+        """
+        while True:
+            last_name, first_name, date_of_birth, national_id = self.player_view.prompt_for_player_details()
+            if date_utils.validate_date(date_of_birth):
+                return last_name, first_name, date_of_birth, national_id
+            else:
+                self.player_view.display_feedback("invalid_birthdate")

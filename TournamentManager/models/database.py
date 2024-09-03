@@ -6,13 +6,25 @@ from models.tournament import Tournament
 
 
 class Database:
+    """
+    The Database class provides methods for persisting and retrieving data related to players and tournaments.
+    It uses JSON files to store the data and provides an interface for loading and saving data in these files.
+    """
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     PLAYERS_FILE = os.path.join(BASE_DIR, "data", "players.json")
     TOURNAMENTS_FILE = os.path.join(BASE_DIR, "data", "tournaments.json")
 
     @classmethod
     def load_players(cls):
-        # Load players from JSON file
+        """
+        Load players from the JSON file.
+
+        If the players file does not exist, it initializes an empty file and returns an empty list.
+        Otherwise, it reads the data from the file, converts it into Player objects, and returns a list of these players.
+
+        Returns:
+            list[Player]: A list of Player objects.
+       """
         if not os.path.exists(cls.PLAYERS_FILE):
             with open(cls.PLAYERS_FILE, 'w', encoding='utf-8') as file:
                 json.dump([], file)
@@ -23,14 +35,29 @@ class Database:
 
     @classmethod
     def save_players(cls, players):
-        # Save players to JSON file
+        """
+        Save a list of players to the JSON file.
+
+        The method converts the Player objects into dictionaries and writes them to the file in JSON format.
+
+        Args:
+            players (list[Player]): A list of Player objects to save.
+        """
         with open(cls.PLAYERS_FILE, 'w', encoding='utf-8') as file:
             json.dump([player.to_dict() for player in players],
                       file, ensure_ascii=False, indent=4)
 
     @classmethod
     def load_tournaments(cls):
-        # Load tournaments from JSON file
+        """
+        Load tournaments from the JSON file.
+
+        This method reads the tournament data from the file, converts it into Tournament objects, and returns a list of these tournaments.
+        If the file does not exist or if there's an error during the loading process, it returns an empty list.
+
+        Returns:
+            list[Tournament]: A list of Tournament objects.
+        """
         if not os.path.exists(cls.TOURNAMENTS_FILE):
             return []
         try:
@@ -43,16 +70,33 @@ class Database:
 
     @classmethod
     def save_tournament(cls, tournaments):
-        # Save tournaments to JSON file
+        """
+        Save a list of tournaments to the JSON file.
+
+        The method converts the Tournament objects into dictionaries and writes them to the file in JSON format.
+
+        Args:
+            tournaments (list[Tournament]): A list of Tournament objects to save.
+        """
         with open(cls.TOURNAMENTS_FILE, 'w', encoding='utf-8') as file:
             json.dump([tournament.to_dict() for tournament in tournaments],
                       file, ensure_ascii=False, indent=4)
 
     @classmethod
     def save_tournament_update(cls, tournament):
-        tournaments = cls.load_tournaments()
+        """
+        Update an existing tournament in the JSON file.
 
-        # Find and update tournament
+        The method loads all tournaments, finds the one with the matching reference, updates it, and saves the updated list back to the file.
+        If the tournament is not found, a ValueError is raised.
+
+        Args:
+            tournament (Tournament): The Tournament object to update.
+
+        Raises:
+            ValueError: If the tournament with the specified reference is not found.
+            """
+        tournaments = cls.load_tournaments()
         for i, existing_tournament in enumerate(tournaments):
             if existing_tournament.reference == tournament.reference:
                 tournaments[i] = tournament

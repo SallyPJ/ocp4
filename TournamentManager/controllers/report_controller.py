@@ -10,16 +10,21 @@ from views.tournament_view import TournamentView
 
 
 class ReportController:
+    """
+       The ReportController class manages the generation and display of reports within the application.
 
+       It handles user interactions related to report generation, including creating HTML reports for tournaments
+       and displaying them in the web browser. The controller interacts with the database to retrieve tournament data,
+       and uses Jinja2 templates to format the reports.
+    """
     def __init__(self):
-        # Initialize view and database
         self.database = Database()
         self.tournament_controller = TournamentController()
         self.report_view = ReportView()
         self.player_view = PlayerView()
         self.tournament_view = TournamentView()
 
-    def manage_reports(self):
+    def run_report_menu(self):
         """
         Manages the report generation process, allowing users
         to choose from different report options.
@@ -42,8 +47,9 @@ class ReportController:
 
     def handle_generate_html_report(self):
         """
-        Handles the process of generating and displaying
-        the HTML report for all tournaments.
+        Handles the generation and display of an HTML report for all tournaments.
+        This method loads the tournament data from the database, generates an HTML report using a Jinja2 template,
+        and then opens the report in the default web browser.
         """
         try:
             tournaments = self.database.load_tournaments()

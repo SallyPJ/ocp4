@@ -1,4 +1,3 @@
-from utils import date_utils
 from tabulate import tabulate
 from views.base_view import BaseView
 
@@ -16,34 +15,21 @@ class TournamentView(BaseView):
         print("==========================================")
         return input("Choisir une option: ")
 
-    def get_tournament_details(self):
-        # Get tournament details from user input
-        name = input("Entrer le nom du tournoi: ")
-        location = input("Entrer le lieu du tournoi: ")
-        # Validate start date
-        while True:
-            start_date = input("Entrer la date de début (JJ/MM/AAAA): ")
-            if date_utils.validate_date(start_date):
-                break
-            else:
-                print("La date de début n'est pas valide. "
-                      "Veuillez entrer la date au format JJ/MM/AAAA.")
-
-        # Validate end date
-        while True:
-            end_date = input("Entrer la date de fin (JJ/MM/AAAA): ")
-            if date_utils.validate_date(end_date):
-                break
-            else:
-                print("La date de fin n'est pas valide. "
-                      "Veuillez entrer la date au format JJ/MM/AAAA.")
-        return name, location, start_date, end_date
-
     def get_tournament_feedbacks(self, tournament):
         print("*** FIN DU TOURNOI ***")
         feedback = input("Entrer vos remarques ou "
                          "commentaires généraux sur le tournoi:")
         return feedback
+
+    def show_tournament_launcher_menu(self, tournament):
+        # Display tournament management menu
+        print("==========================================")
+        print("     [ Menu du lancement du Tournoi ]")
+        print("==========================================")
+        print("1. Débuter/Relancer le Tournoi")
+        print("2. Retour au menu principal")
+        print("==========================================")
+        return input("Choisissez une option: ")
 
 
     def get_round_count(self, default_rounds: int = 4) -> int:
@@ -79,15 +65,6 @@ class TournamentView(BaseView):
             else:
                 print("Choix invalide. Veuillez entrer 'O' pour oui ou 'N' pour non.")
 
-    def show_tournament_launcher_menu(self, tournament):
-        # Display tournament management menu
-        print("==========================================")
-        print("     [ Menu du lancement du Tournoi ]")
-        print("==========================================")
-        print("1. Débuter/Relancer le Tournoi")
-        print("2. Retour au menu principal")
-        print("==========================================")
-        return input("Choisissez une option: ")
 
     def display_tournament_details(self, tournament):
         if tournament:
@@ -95,74 +72,6 @@ class TournamentView(BaseView):
             print(f"Dates: {tournament.start_date} - {tournament.end_date}")
         else:
             print("Tournoi non trouvé.")
-
-    def filter_tournaments(self, tournaments, filter_status):
-        """
-        Filter the list of tournaments based on their status.
-
-        :param tournaments: List of Tournament objects.
-        :param filter_status: Status to filter
-        ('not_started', 'in_progress', or 'finished').
-        :return: Filtered list of tournaments.
-        """
-        if filter_status is None:
-            # Return all tournaments if no filter status is specified
-            print("Aucun statut de filtre spécifié. Affichage de tous les tournois.")
-            return tournaments
-
-        if filter_status == "not_started":
-            # Tournament is not started if it's neither
-            # in progress nor finished
-            return [tournament for tournament in tournaments
-                    if not tournament.in_progress and not tournament.rounds_completed]
-        elif filter_status == "in_progress":
-            return [tournament for tournament in tournaments
-                    if tournament.in_progress and not tournament.rounds_completed]
-        elif filter_status == "finished":
-            return [tournament for tournament in tournaments
-                    if tournament.rounds_completed and not tournament.in_progress]
-        elif filter_status == "not_finished":
-            return [tournament for tournament in tournaments
-                    if tournament.in_progress or (not tournament.rounds_completed
-                                                  and not tournament.in_progress)]
-        else:
-            raise ValueError("Statut du filtre non valide. "
-                             "Veuillez utiliser 'not_started', "
-                             "'in_progress', ou 'finished'.")
-
-    def display_tournaments_list(self, tournaments, filter_status):
-        """
-        Displays the list of tournaments sorted by start date
-        from most recent to oldest.
-        """
-        # Filter tournaments based on status if filter_status is provided
-        if filter_status:
-            tournaments = self.filter_tournaments(tournaments, filter_status)
-        # Check if tournaments list is empty
-        if not tournaments:
-            print("Aucun tournoi à afficher pour le statut spécifié.")
-            return {}
-        # Sort tournaments by start date
-        tournaments_sorted = sorted(
-            tournaments, key=lambda t: date_utils.parse_date(t.start_date),
-            reverse=True)
-        # Prepare the data for the table and UUID index map
-        table = []
-        uuid_index_map = {}
-        for index, tournament in enumerate(tournaments_sorted):
-            table.append([index + 1, tournament.name, tournament.start_date,
-                          tournament.end_date])
-            uuid_index_map[index + 1] = tournament.reference
-        # Define the table headers
-        headers = ["No", "Nom", "Date de début", "Date de fin"]
-        # Print the table
-        print("Liste de tous les tournois:")
-        print(tabulate(table, headers, tablefmt="pretty",
-                       colalign=("left", "left", "left", "left")))
-        # Return the UUID index map for future reference
-        return uuid_index_map
-
-
 
     def display_match_info(self):
         print(f"Round {self.round_number}: {self.player1.first_name} vs "
@@ -175,43 +84,34 @@ class TournamentView(BaseView):
         return input("Entrez le numéro d'un ou plusieurs tournois "
                      "(séparés par une virgule): ")
 
-    def display_tournament_rounds_and_matches(self, tournament):
-        print(f"Tournoi : {tournament.name}")
-        for round in tournament.rounds:
-            print(f"Tour {round.round_number} :")
-            for match in round.matches:
-                results = match.get_match_results()
-                (player1_name, result1), (player2_name, result2) = (
-                    list(results.items()))
-                print(f" - {player1_name} vs {player2_name} : "
-                      f"{result1}-{result2}")
-
     def display_scores(self, tournament):
         print("+-+-+-+ Scores cumulés  +-+-+-+")
         table_data = []
         for player in tournament.selected_players:
             full_name = f"{player.last_name} {player.first_name} "
             table_data.append([full_name, player.total_points])
-        # Define headers
         headers = ["Nom et prénom du joueur", "Points totaux"]
-
-        # Display table using tabulate
         print(tabulate(table_data, headers=headers, tablefmt="grid"))
 
-    def display_message(self, message_type, tournament=None):
+    def display_feedback(self, message_type, tournament=None):
         # Display a message to the user
         if message_type == "players_added":
             print("✅ Joueurs ajoutés au tournoi avec succès.")
         elif message_type == "incorrect_players_number" and tournament is not None:
-            print(f"⚠️ Nombre incorrect de joueurs sélectionnés.\n"
+            print(f"❌ Nombre incorrect de joueurs sélectionnés.\n"
                   f"Vous devez sélectionner {tournament.number_of_players} joueurs."
                   f"Veuillez réessayer.")
         elif message_type == "no_tournament_selected":
             print("⚠️ Aucun tournoi sélectionné.")
         elif message_type == "empty_feedback":
             print("⚠️ Veuillez renseigner un commentaire.")
+        elif message_type == "no_filter":
+            print("⚠️ Aucun statut de filtre spécifié. Affichage de tous les tournois.")
+        elif message_type == "invalid_filter_status":
+            print("❌ Statut du filtre non valide. Veuillez utiliser 'not_started', "
+                  "'in_progress', 'not_finished' ou 'finished'.")
         else:
-            super().display_message(message_type)
+            super().display_feedback(message_type)
 
     def display_tournament_report(self, tournament):
         """
@@ -284,3 +184,4 @@ class TournamentView(BaseView):
         print(tabulate(table_data, headers=headers, tablefmt="pretty", colalign=("left", "right")))
         print(f"Remarques et commentaires généraux sur "
               f"le tournoi : {tournament.description} ")
+
