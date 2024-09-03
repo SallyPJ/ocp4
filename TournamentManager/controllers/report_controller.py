@@ -46,14 +46,11 @@ class ReportController:
         the HTML report for all tournaments.
         """
         try:
-            # Load tournaments
             tournaments = self.database.load_tournaments()
             if not tournaments:
                 print("Aucun tournoi n'a été trouvé.")
                 return
-            # Generate the report
             self.generate_html_report(tournaments)
-            # Open the report in the web browser
             self.open_report_in_browser('tournament_report.html')
         except Exception as e:
             print(f"Une erreur est survenue lors de la création du rapport: {str(e)}")
@@ -68,19 +65,13 @@ class ReportController:
             output_file (str): Path to the output HTML file.
         """
         try:
-            # Set up Jinja2 environment
             template_dir = os.path.join(os.path.dirname(__file__),
                                         '..', 'views', 'templates')
             env = Environment(loader=FileSystemLoader(template_dir))
             template = env.get_template('tournaments_report_template.html')
-
-            # Render the template with tournament data
             html_output = template.render(tournaments=tournaments)
-
-            # Write the rendered HTML to the output file
             with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(html_output)
-
             print(f"Rapport généré avec succès: {output_file}")
         except Exception as e:
             print(f"Erreur lors de la génération du rapport: {str(e)}")

@@ -6,3 +6,5 @@ class BaseView:
             print("❌ Option non valide. Veuillez réessayer")
         elif message_type == "invalid_selection":
             print("❌ Sélection invalide. Veuillez réessayer.")
+        elif message_type == "operation_cancelled":
+            print("⚠️  Operation annulée. Retour au menu précédent.")

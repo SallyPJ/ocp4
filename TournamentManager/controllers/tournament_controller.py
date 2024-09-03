@@ -1,17 +1,18 @@
 from models.database import Database
 from models.tournament import Tournament
-from views.player_view import PlayerView
-from controllers.round_controller import RoundController
 from views.tournament_view import TournamentView
+from controllers.player_controller import PlayerController
+from controllers.round_controller import RoundController
+
 
 
 class TournamentController:
     def __init__(self):
         # Initialize tournament view, database, and player view
         self.database = Database()
-        self.player_view = PlayerView()
         self.tournament_view = TournamentView()
         self.round_controller = RoundController()
+        self.player_controller = PlayerController()
 
     def manage_tournament(self):
         """
@@ -28,15 +29,12 @@ class TournamentController:
             choice = self.tournament_view.display_tournaments_menu()
 
             if choice == "1":
-                # Create a new tournament
                 self.handle_create_tournament()
 
             elif choice == "2":
-                # Display a list of in progress tournaments
                 self.handle_tournament_selection("not_finished")
 
             elif choice == "3":
-                # Display a list of finished tournaments
                 self.handle_tournament_selection("finished")
 
             elif choice == "4":
@@ -132,44 +130,15 @@ class TournamentController:
 
     def add_players_to_tournament(self, tournament):
         """Select and add players to the tournament."""
-        players = sorted(self.database.load_players())
-        selected_players = self.select_multiple_players(players, tournament)
+        players = self.player_controller.sort_players_alphabetically()
+        self.player_view.display_players_list(players)
+        selected_players = self.player_controller.select_multiple_players(players)
 
         if selected_players:
             tournament.selected_players.extend(selected_players)
             self.tournament_view.display_message("players_added")
         else:
             self.tournament_view.display_message("no_players_selected")
-
-    def select_multiple_players(self, players, tournament):
-        """Handle the selection of multiple players for the tournament."""
-        while True:
-            self.player_view.display_players_list(players)
-            player_choices = self.tournament_view.select_players_input()
-            selected_players = self.process_player_choices(player_choices, players)
-
-            print(
-                f"Nombre de joueurs sélectionnés: {len(selected_players)}, "
-                f"Nombre requis: {tournament.number_of_players}")
-            if len(selected_players) == tournament.number_of_players:
-                self.tournament_view.display_selected_players(selected_players)
-                if self.tournament_view.confirm_selection().lower() == 'o':
-                    return selected_players
-                else:
-                    self.tournament_view.display_message("players_reset")
-
-            else:
-                self.tournament_view.display_message("incorrect_players_number",
-                                                     tournament)
-
-    def process_player_choices(self, choices, players):
-        """Process the user's player selection input."""
-        try:
-            indices = [int(choice.strip()) - 1 for choice in choices.split(',')]
-            return [players[idx] for idx in indices if 0 <= idx < len(players)]
-        except ValueError:
-            self.tournament_view.display_message("invalid_selection")
-            return []
 
     def process_tournament_choices(self, user_input, tournaments, uuid_index_map):
         """Process the user's tournament selection input."""

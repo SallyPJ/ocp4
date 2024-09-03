@@ -9,60 +9,87 @@ class PlayerController:
     creating players, displaying registered players, and interacting with the view.
     """
     def __init__(self):
-        """
-        Initialize the PlayerController with an associated view and database.
-        """
         self.player_view = PlayerView()
         self.database = Database()
 
     def manage_player(self):
         """
        Main loop to manage player operations. Presents a menu to the user and
-       executes the corresponding actions based on the user's choice.
-       1. Create a new player
-       2. Display registered players
-       3. Exit to the main menu
+        executes the corresponding actions based on the user's choice.
+        Options:
+        1. Create a new player
+        2. Delete a player
+        3. Display registered players
+        4. Exit to the main menu
        """
         while True:
             choice = self.player_view.display_players_menu()
             if choice == "1":
-                self.handle_create_player()
+                self.create_player()
             elif choice == "2":
-                self.display_registered_players()
+                self.delete_player()
             elif choice == "3":
-                # Exit the loop and return to the main menu
+                self.display_registered_players_alphabetically()
+            elif choice == "4":
                 break
             else:
                 self.player_view.display_message("invalid_option")
 
-    def create_player(self, last_name, first_name, date_of_birth, national_id):
+    def create_player(self):
+        """
+        Handles the creation of a new player by gathering details from the user and saving
+        the player to the database.
+
+        Exceptions:
+            If an error occurs during the player creation process, an error message is displayed.
+        """
         try:
-            # Create a new player and save to the database
-            new_player = Player(last_name, first_name, date_of_birth, national_id)
+            player_details = self.player_view.get_player_details()
+            new_player = Player(*player_details)
             players = self.database.load_players()
             players.append(new_player)
             self.database.save_players(players)
             self.player_view.display_message("player_created")
         except Exception as e:
-            print(f"Erreur lors de la création du joueur : {str(e)}")
+            self.player_view.display_message("player_creation_error", error_message=str(e))
 
-    def handle_create_player(self):
+    def delete_player(self):
         """
-        Handles the creation of a new player. It interacts with the view to gather
-        player details, creates a Player instance, and saves it to the database.
+        Handles the deletion of a player by allowing the user to select one or more players
+        from the list of registered players.
+
+        The user can press 'Q' to cancel the operation and return to the main menu.
 
         Exceptions:
-            Handles any exceptions that might occur during player creation.
+            If an error occurs during the deletion process, an error message is displayed.
         """
         try:
-            # Get player details from the user
-            player_details = self.player_view.get_player_details()
-            # Create the player using player controller
-            self.create_player(*player_details)
+            players = self.sort_players_alphabetically()
+            if not players:
+                self.player_view.display_message("no_players")
+                return
+            while True:
+                self.player_view.display_players_list(players)
+                self.player_view.display_quit_message()
+                selected_players = self.select_multiple_players(players)
+                if selected_players == "quit":
+                    self.player_view.display_message("operation_cancelled")
+                    break
+                if not selected_players:
+                    self.player_view.display_message("no_players_selected")
+                if self.confirm_players_selection(selected_players):
+                    for player in selected_players:
+                        players.remove(player)
+                    self.database.save_players(players)
+                    self.player_view.display_message("players_deleted", selected_players)
+                    break
+                else:
+                    continue
         except Exception as e:
-            print(f"Une erreur est survenue lors de la création du joueur : {str(e)}")
+            self.player_view.display_message("player_deletion_error", error_message=str(e))
 
-    def display_registered_players(self):
+
+    def display_registered_players_alphabetically(self):
         """
         Retrieves and displays a list of registered players, sorted alphabetically
         by their last name.
@@ -71,9 +98,83 @@ class PlayerController:
             Handles any exceptions that might occur while loading or displaying players.
         """
         try:
-            # Load and sort players alphabetically
-            players = sorted(self.database.load_players())
-            # Display the sorted list of players
-            self.player_view.display_players_list(players)
+            players = self.sort_players_alphabetically()
+            if players:
+                self.player_view.display_players_list(players)
         except Exception as e:
-            print(f"Une erreur est survenue lors de l'affichage des joueurs : {str(e)}")
+            self.player_view.display_message("players_display_error", error_message=str(e))
+
+    def select_multiple_players(self, players):
+        """
+        Handles the selection of multiple players using indices but verifies the selection with UUIDs.
+
+        Args:
+            players (list): The list of player objects to select from.
+
+        Returns:
+            list or str: A list of selected player objects, or 'quit' if the user chooses to exit.
+        """
+        index_uuid_map = {idx + 1: player.id for idx, player in enumerate(players)}
+        selected_indices = self.player_view.select_players_input()
+        if selected_indices.strip().lower() == 'q':
+            return "quit"
+        selected_players = self.process_player_choices(selected_indices, players, index_uuid_map)
+        return selected_players
+
+    def process_player_choices(self, user_input, players, uuid_index_map):
+        """Processes the user's player selection input based on indices and maps them to player objects.
+
+        Args:
+            user_input (str): The indices entered by the user.
+            players (list): The list of player objects.
+            uuid_index_map (dict): A dictionary mapping indices to player UUIDs.
+
+        Returns:
+            list: A list of selected player objects.
+        """
+        try:
+            indices = [int(choice.strip()) - 1 for choice in user_input.split(',')]
+            selected_uuids = {uuid_index_map.get(idx + 1) for idx in indices if 0 <= idx < len(players)}
+            selected_players = [player for player in players if player.id in selected_uuids]
+
+            return selected_players
+        except ValueError:
+            self.player_view.display_message("invalid_selection")
+            return []
+
+    def confirm_players_selection(self, selected_players):
+        """
+        Confirms the selection of players before proceeding with deletion.
+
+        Args:
+            selected_players (list): The list of selected player objects.
+
+        Returns:
+            bool: True if the selection is confirmed, False otherwise.
+        """
+        self.player_view.display_selected_players(selected_players)
+        confirmation = self.player_view.confirm_selection().lower()
+
+        if confirmation == 'o':
+            return True  # Proceed with the deletion
+        elif confirmation == 'n':
+            self.player_view.display_message("players_reset")
+            selected_players.clear()  # Clear the selection
+            return False  # Indicate that the user wants to restart the selection
+        else:
+            self.player_view.display_message("invalid_option")  # Invalid option
+
+    def sort_players_alphabetically(self):
+        """
+        Sorts the list of players alphabetically by their last name.
+
+        Returns:
+            list: A sorted list of player objects.
+
+        Exceptions:
+            If no players are found, a message is displayed.
+        """
+        players = sorted(self.database.load_players(), key=lambda player: player.last_name)
+        if not players:
+            self.player_view.display_message("no_players")
+        return players

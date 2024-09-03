@@ -123,7 +123,8 @@ class TournamentView(BaseView):
                     if tournament.rounds_completed and not tournament.in_progress]
         elif filter_status == "not_finished":
             return [tournament for tournament in tournaments
-                    if tournament.in_progress]
+                    if tournament.in_progress or (not tournament.rounds_completed
+                                                  and not tournament.in_progress)]
         else:
             raise ValueError("Statut du filtre non valide. "
                              "Veuillez utiliser 'not_started', "
@@ -161,20 +162,7 @@ class TournamentView(BaseView):
         # Return the UUID index map for future reference
         return uuid_index_map
 
-    def select_players_input(self):
-        # Get user input for player selection
-        return input("Entrez les numéros des joueurs que vous "
-                     "voulez sélectionner (séparés par des virgules): ")
 
-    def display_selected_players(self, players):
-        # Display selected players
-        print("Joueurs sélectionnés:")
-        for player in players:
-            print(player)
-
-    def confirm_selection(self):
-        # Confirm player selection
-        return input("Confirmer la sélection ? (o/n): ")
 
     def display_match_info(self):
         print(f"Round {self.round_number}: {self.player1.first_name} vs "
@@ -199,7 +187,7 @@ class TournamentView(BaseView):
                       f"{result1}-{result2}")
 
     def display_scores(self, tournament):
-        print("+-+-+-+ Scores cumulés des rounds +-+-+-+")
+        print("+-+-+-+ Scores cumulés  +-+-+-+")
         table_data = []
         for player in tournament.selected_players:
             full_name = f"{player.last_name} {player.first_name} "
@@ -213,11 +201,7 @@ class TournamentView(BaseView):
     def display_message(self, message_type, tournament=None):
         # Display a message to the user
         if message_type == "players_added":
-            print("✅ Joueurs ajoutés avec succès.")
-        elif message_type == "no_players_selected":
-            print("⚠️ Aucun joueur sélectionné.")
-        elif message_type == "players_reset":
-            print("⚠️ La sélection des joueurs a été réinitialisée.")
+            print("✅ Joueurs ajoutés au tournoi avec succès.")
         elif message_type == "incorrect_players_number" and tournament is not None:
             print(f"⚠️ Nombre incorrect de joueurs sélectionnés.\n"
                   f"Vous devez sélectionner {tournament.number_of_players} joueurs."
