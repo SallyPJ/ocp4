@@ -1,5 +1,5 @@
 # Chess Tournament Manager
-This project is a Chess Tournament Manager that allows you to manage players, tournaments, and generate HTML reports for tournaments. The program is cross-platform and works on Windows, macOS, and Linux.
+This project is a Chess Tournament Manager that allows you to manage players, tournaments, and generate HTML reports for tournaments.  The program is cross-platform and works on Windows, macOS, and Linux.
 
 ## Dependencies
 - uuid
@@ -15,8 +15,8 @@ Python dependencies listed in requirements.txt (see the "Installation" section)
 ## Installation
 
 ### 1. Clone the project
-Open Git Bash or your preferred terminal application.
-Navigate to the directory where you want to clone the project using the cd (change directory) command.
+Open Git Bash or your preferred terminal application.  
+Navigate to the directory where you want to clone the project using the cd (change directory) command.  
 Run the following command to clone the repository:
  ```bash
 git clone https://github.com/SallyPJ/ocp2.git
@@ -37,7 +37,8 @@ Linux/Mac
 source env/bin/activate
  ```
 ### 3. Install dependencies
-The program relies on several Python libraries which can be installed using pip. Navigate to the directory containing the project files in your terminal or command prompt and run the following command:
+The program relies on several Python libraries which can be installed using pip.   
+Navigate to the directory containing the project files in your terminal or command prompt and run the following command:
  ```bash
 pip install -r requirements.txt
  ```
