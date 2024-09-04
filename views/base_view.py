@@ -8,13 +8,13 @@ class BaseView:
             print("❌ Sélection invalide. Veuillez réessayer.")
         elif message_type == "operation_cancelled":
             print("⚠️  Operation annulée. Retour au menu précédent.")
-        elif message_type == "invalid_player_data" and error_message is not None:
+        elif message_type == "invalid_player_data" and error_message:
             print(f"❌ Erreur dans les données du joueur : {error_message}")
-        elif message_type == "database_io_error" and error_message is not None:
+        elif message_type == "database_io_error" and error_message:
             print(f"❌ Erreur d'accès à la base de données : {error_message}")
         elif message_type == "no_players_selected":
             print("⚠️ Aucun joueur sélectionné.")
         elif message_type == "empty_field":
             print("❌ Le champ ne doit pas être vide.")
-        elif message_type == "file_not_found_error" and error_message is not None:
-            print(f"Le fichier n'a pas été trouvé : {error_message}.")
+
+

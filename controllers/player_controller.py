@@ -84,8 +84,10 @@ class PlayerController:
                     break
                 else:
                     continue
+        except FileNotFoundError as fnf:
+            self.player_view.display_feedback("fnf_error", error_message=str(fnf))
         except Exception as e:
-            self.player_view.display_feedback("player_deletion_error", error_message=str(e))
+            self.player_view.display_feedback("database_io_error", error_message=str(e))
 
     def display_sorted_players(self):
         """
@@ -97,12 +99,15 @@ class PlayerController:
         Exceptions:
             If an error occurs during the player display process, an error message is displayed.
         """
-        players = self.sort_players_alphabetically()
-        if not players:
-            self.player_view.display_feedback("no_players")
-            return None
-        self.player_view.display_players_list(players)
-        return players
+        try:
+            players = self.sort_players_alphabetically()
+            if not players:
+                self.player_view.display_feedback("no_players")
+                return None
+            self.player_view.display_players_list(players)
+            return players
+        except FileNotFoundError as fnf:
+            self.player_view.display_feedback("fnf_error", error_message=str(fnf))
 
 
 

@@ -71,7 +71,7 @@ class PlayerView(BaseView):
         headers = ["No", "Identifiant", "Nom", "Prénom", "Date de naissance", ]
         print(tabulate(table, headers, tablefmt="pretty", colalign="left"))
 
-    def display_feedback(self, message_type, players=None, error_message=None):
+    def display_feedback(self, message_type, error_message=None, players=None):
         """
         Displays feedback messages to the user based on the operation performed.
 
@@ -94,12 +94,12 @@ class PlayerView(BaseView):
             print("✅ Les joueurs suivants ont été supprimés avec succès:")
             for player in players:
                 print(f"- {player.first_name} {player.last_name}")
-        elif message_type == "player_deletion_error" and error_message:
-            print(f"❌ Erreur lors de la suppression du/des joueur(s): {error_message}")
         elif message_type == "invalid_birthdate":
             print("❌ La date de naissance n'est pas valide. Veuillez entrer la date au format JJ/MM/AAAA.")
         elif message_type == "invalid_national_id":
             print("❌ L'identifiant national d'échec doit contenir 2 lettres suivies de 5 chiffres.")
+        elif message_type == "fnf_error" and error_message:
+            print(f"❌ Erreur lors lors du chargement du fichier: {error_message}")
         else:
             super().display_feedback(message_type)
 

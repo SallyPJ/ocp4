@@ -40,11 +40,11 @@ class ReportView(BaseView):
             None
         """
         if message_type == "no_tournament":
-            print("Aucun tournoi n'a été trouvé.")
+            print("⚠️ Aucun tournoi n'a été trouvé.")
         elif message_type == "io_error" and error_message is not None:
             print(f"Erreur d'accès à la base de données : {error_message}.")
         elif message_type == "report_success":
-            print("Rapport généré avec succès")
+            print("✅ Rapport généré avec succès")
         elif message_type == "report_generation_error" and error_message is not None:
             print(f"Erreur lors de la génération du rapport: {error_message}")
         elif message_type == "report_browser_error" and error_message is not None:

@@ -134,6 +134,10 @@ class TournamentView(BaseView):
             print("❌ Ce n'est pas un nombre entier valide. Veuillez entrer un nombre entier entre 1 et 30.")
         elif message_type == "invalid_choice_YN":
             print("❌ Choix invalide. Veuillez entrer 'O' pour oui ou 'N' pour non.")
+        if message_type == "no_player_file":
+            print("⚠️ Le fichier 'players.json' n'existe pas. Impossible de créer un tournoi sans joueurs.")
+        elif message_type == "not_enough_players":
+            print("⚠️ Il doit y avoir au moins deux joueurs enregistrés pour créer un tournoi.")
         else:
             super().display_feedback(message_type)
 
@@ -195,7 +199,7 @@ class TournamentView(BaseView):
 
     def display_no_tournaments_message(self):
         """Affiche un message quand aucun tournoi n'est disponible."""
-        print("Aucun tournoi à afficher pour le statut spécifié.")
+        print("❌ Aucun tournoi à afficher pour le statut spécifié.")
 
     def display_tournament_details(self, tournament_details):
         print("Détails du tournoi :")

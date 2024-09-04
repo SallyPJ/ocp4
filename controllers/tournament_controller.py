@@ -1,4 +1,5 @@
 from utils import date_utils
+import os
 from models.database import Database
 from models.round import Round
 from models.tournament import Tournament
@@ -48,6 +49,8 @@ class TournamentController:
         Returns:
             None
         """
+        if not self.check_players_list():
+            return
         tournament = self.create_tournament()
         self.launch_tournament_menu(tournament)
 
@@ -161,7 +164,15 @@ class TournamentController:
         """
         tournament.in_progress = False
         self.save_tournament_progress(tournament)
-
+    def check_players_list(self):
+        if not os.path.exists(self.database.PLAYERS_FILE):
+            self.tournament_view.display_feedback("no_player_file")
+            return False
+        players = self.database.load_players()
+        if len(players) < 2:
+            self.tournament_view.display_feedback("not_enough_players")
+            return False
+        return True
     def create_tournament(self):
         """
         Creates a new tournament by collecting necessary details from the user.

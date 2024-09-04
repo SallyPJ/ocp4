@@ -57,7 +57,7 @@ class ReportController:
             self.generate_html_report(tournaments)
             self.open_report_in_browser('tournament_report.html')
         except FileNotFoundError as fnf_error:
-            self.report_view.display_feedback("file_not_found_error", error_message=str(fnf_error))
+            self.report_view.display_feedback("fnf_error", error_message=str(fnf_error))
         except IOError as io_error:
             self.report_view.display_feedback("io_error", error_message=str(io_error))
 
