@@ -136,16 +136,19 @@ class PlayerView(BaseView):
         """
         return input("Entrer le nombre de joueurs: ")
 
-    def display_invalid_player_count_message(self, message_type):
+    def display_invalid_player_count_message(self, message_type, max_players=None):
         """
-        Displays an error message if the entered player count is invalid.
+        Displays a specific error message based on the type of validation error.
 
         Args:
             message_type (str): The type of error message to display.
+            max_players (int): Optional; the maximum number of players available.
         """
         if message_type == "negative_or_zero":
-            print("Le nombre de joueurs doit être un nombre positif.")
+            print("❌ Le nombre de joueurs doit être supérieur à zéro.")
         elif message_type == "not_even":
-            print("Le nombre de joueurs doit être un chiffre pair.")
+            print("❌ Le nombre de joueurs doit être un nombre pair.")
+        elif message_type == "too_many_players" and max_players is not None:
+            print(f"❌ Le nombre de joueurs sélectionné dépasse le nombre de joueurs enregistrés ({max_players} joueurs disponibles).")
         elif message_type == "not_integer":
-            print("Veuillez entrer un nombre entier.")
+            print("❌ Veuillez entrer un nombre entier valide.")

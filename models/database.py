@@ -13,17 +13,24 @@ class Database:
     PLAYERS_FILE = os.path.join(BASE_DIR, "data", "players.json")
     TOURNAMENTS_FILE = os.path.join(BASE_DIR, "data", "tournaments.json")
 
+
+    @classmethod
+    def check_for_data_directory(cls):
+        if not os.path.exists(os.path.dirname(cls.PLAYERS_FILE)):
+            os.makedirs(os.path.dirname(cls.PLAYERS_FILE))
     @classmethod
     def load_players(cls):
         """
         Load players from the JSON file.
 
+        If the data repertory does not exist, it creates it.
         If the players file does not exist, it initializes an empty file and returns an empty list.
         Otherwise, it reads the data from the file, converts it into Player objects, and returns a list of these players.
 
         Returns:
             list[Player]: A list of Player objects.
        """
+        cls.check_for_data_directory()
         if not os.path.exists(cls.PLAYERS_FILE):
             with open(cls.PLAYERS_FILE, 'w', encoding='utf-8') as file:
                 json.dump([], file)
@@ -31,8 +38,6 @@ class Database:
         with open(cls.PLAYERS_FILE, 'r', encoding='utf-8') as file:
             data = json.load(file)
             return [Player.from_dict(player) for player in data]
-
-
 
     @classmethod
     def save_players(cls, players):
@@ -53,12 +58,14 @@ class Database:
         """
         Load tournaments from the JSON file.
 
+        If the data repertory does not exist, it creates it.
         This method reads the tournament data from the file, converts it into Tournament objects, and returns a list of these tournaments.
         If the file does not exist or if there's an error during the loading process, it returns an empty list.
 
         Returns:
             list[Tournament]: A list of Tournament objects.
         """
+        cls.check_for_data_directory()
         if not os.path.exists(cls.TOURNAMENTS_FILE):
             return []
         try:
@@ -79,6 +86,7 @@ class Database:
         Args:
             tournaments (list[Tournament]): A list of Tournament objects to save.
         """
+        cls.check_for_data_directory()
         with open(cls.TOURNAMENTS_FILE, 'w', encoding='utf-8') as file:
             json.dump([tournament.to_dict() for tournament in tournaments],
                       file, ensure_ascii=False, indent=4)

@@ -68,7 +68,8 @@ class PlayerController:
         try:
             players = self.display_sorted_players()
             while True:
-                self.player_view.display_quit_message()
+                if players:
+                    self.player_view.display_quit_message()
                 selected_players = self.select_multiple_players(players)
                 if selected_players == "quit":
                     self.player_view.display_feedback("operation_cancelled")
@@ -191,16 +192,20 @@ class PlayerController:
         Returns:
             int: The validated number of players.
         """
+        registered_players = self.database.load_players()
         while True:
             user_input = self.player_view.prompt_for_player_count()
             try:
                 number_of_players = int(user_input)
-                if number_of_players > 0 and number_of_players % 2 == 0:
-                    return number_of_players
-                elif number_of_players <= 0:
+                if number_of_players <= 0:
                     self.player_view.display_invalid_player_count_message("negative_or_zero")
-                else:
+                elif number_of_players % 2 != 0:
                     self.player_view.display_invalid_player_count_message("not_even")
+                    # Check if the selected number of players is less than or equal to the registered players
+                elif number_of_players > len(registered_players):
+                    self.player_view.display_invalid_player_count_message("too_many_players", len(registered_players))
+                else:
+                    return number_of_players
             except ValueError:
                 self.player_view.display_invalid_player_count_message("not_integer")
 
