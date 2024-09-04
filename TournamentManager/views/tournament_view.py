@@ -5,6 +5,18 @@ from views.base_view import BaseView
 class TournamentView(BaseView):
 
     def display_tournaments_menu(self):
+        """
+        Displays the tournament management menu to the user.
+
+        This menu provides options to:
+        1. Create a new tournament.
+        2. Launch or resume a tournament.
+        3. View completed tournaments and details.
+        4. Return to the main menu.
+
+        Returns:
+            str: The user's selected option from the menu.
+        """
         print("==========================================")
         print("     [ Menu de Gestion des Tournois ]")
         print("==========================================")
@@ -16,30 +28,65 @@ class TournamentView(BaseView):
         return input("Choisir une option: ")
 
     def get_tournament_name(self):
+        """
+        Prompts the user to input the name of the tournament.
+
+        Returns:
+            str: The name entered by the user.
+        """
         """Demande le nom du tournoi à l'utilisateur."""
         return input("Entrer le nom du tournoi: ")
 
     def get_tournament_location(self):
-        """Demande le lieu du tournoi à l'utilisateur."""
+        """
+        Prompts the user to input the location of the tournament.
+
+        Returns:
+            str: The location entered by the user.
+        """
         return input("Entrer le lieu du tournoi: ")
 
     def get_tournament_date(self, date_type):
-        """Demande une date à l'utilisateur."""
+        """
+        Prompts the user to input a specific date for the tournament.
+
+        Args:
+            date_type (str): Specifies whether it's the start or end date.
+
+        Returns:
+            str: The date entered by the user in the format DD/MM/YYYY.
+        """
         return input(f"Entrer la date de {date_type} (JJ/MM/AAAA): ")
 
     def display_invalid_date_message(self, date_type):
-        """Affiche un message d'erreur pour une date invalide."""
+        """
+        Displays an error message when an invalid date is entered.
+
+        Args:
+            date_type (str): Specifies whether the error is for the start or end date.
+        """
         print(f"La date de {date_type} n'est pas valide. "
               "Veuillez entrer la date au format JJ/MM/AAAA.")
 
-    def get_tournament_user_feedbacks(self, tournament):
+    def get_tournament_user_feedbacks(self):
+        """
+        Prompts the user to enter feedback or general remarks about a completed tournament.
+
+        Returns:
+            str: The feedback entered by the user.
+        """
         print("*** FIN DU TOURNOI ***")
         feedback = input("Entrer vos remarques ou "
                          "commentaires généraux sur le tournoi:")
         return feedback
 
-    def show_tournament_launcher_menu(self, tournament):
-        # Display tournament management menu
+    def show_tournament_launcher_menu(self):
+        """
+        Displays the tournament launcher menu, allowing the user to start or resume the tournament.
+
+        Returns:
+            str: The option selected by the user.
+        """
         print("==========================================")
         print("     [ Menu du lancement du Tournoi ]")
         print("==========================================")
@@ -48,40 +95,6 @@ class TournamentView(BaseView):
         print("==========================================")
         return input("Choisissez une option: ")
 
-
-    def get_round_count(self, default_rounds: int = 4) -> int:
-        """
-        Prompts the user for the number of rounds
-        and validates the input.
-
-        Args:
-            default_rounds (int): Default number of rounds
-            if the user does not provide a custom value.
-
-        Returns:
-            int: The number of rounds for the tournament.
-        """
-        while True:
-            choice = input(
-                f"Le nombre de rounds par défaut est {default_rounds}."
-                f" Souhaitez-vous le modifier ? (O/N) : ").strip().lower()
-            if choice == 'o':
-                while True:
-                    try:
-                        number_of_rounds = int(input(
-                            "Nombre de tours (entre 1 et 30) : "))
-                        if 1 <= number_of_rounds <= 30:
-                            return number_of_rounds
-                        else:
-                            print("Le nombre de tours doit être compris entre 1 et 30.")
-                    except ValueError:
-                        print("Ce n'est pas un nombre entier. "
-                              "Veuillez entrer un nombre entier entre 1 et 30.")
-            elif choice == 'n':
-                return default_rounds
-            else:
-                print("Choix invalide. Veuillez entrer 'O' pour oui ou 'N' pour non.")
-
     def get_tournament_selection(self):
         """
         Demande à l'utilisateur de sélectionner un ou plusieurs tournois.
@@ -89,7 +102,7 @@ class TournamentView(BaseView):
         return input("Entrez le numéro d'un ou plusieurs tournois "
                      "(séparés par une virgule): ")
 
-    def display_scores(self, tournament):
+    def display_players_global_scores(self, tournament):
         print("+-+-+-+ Scores cumulés  +-+-+-+")
         table_data = []
         for player in tournament.selected_players:
@@ -115,6 +128,12 @@ class TournamentView(BaseView):
         elif message_type == "invalid_filter_status":
             print("❌ Statut du filtre non valide. Veuillez utiliser 'not_started', "
                   "'in_progress', 'not_finished' ou 'finished'.")
+        elif message_type == "invalid_round_count":
+            print("❌ Le nombre de tours doit être compris entre 1 et 30.")
+        elif message_type == "invalid_number_input":
+            print("❌ Ce n'est pas un nombre entier valide. Veuillez entrer un nombre entier entre 1 et 30.")
+        elif message_type == "invalid_choice_YN":
+            print("❌ Choix invalide. Veuillez entrer 'O' pour oui ou 'N' pour non.")
         else:
             super().display_feedback(message_type)
 
@@ -204,3 +223,26 @@ class TournamentView(BaseView):
 
     def display_tournament_description(self, description):
         print(f"Remarques et commentaires généraux sur le tournoi : {description}")
+
+    def prompt_for_round_modification(self, default_rounds: int) -> str:
+        """
+        Asks the user if they want to modify the default number of rounds.
+
+        Args:
+            default_rounds (int): The default number of rounds.
+
+        Returns:
+            str: The user's choice ('o' for yes or 'n' for no).
+        """
+        return input(
+            f"Le nombre de rounds par défaut est {default_rounds}. "
+            "Souhaitez-vous le modifier ? (O/N) : ").strip().lower()
+
+    def prompt_for_round_count(self) -> str:
+        """
+         Asks the user to input the number of rounds for the tournament.
+
+        Returns:
+            str: The user's input for the number of rounds.
+        """
+        return input("Nombre de tours (entre 1 et 30) : ")

@@ -43,7 +43,7 @@ class ReportController:
                 # Exit reporting menu et open Main Menu
                 break
             else:
-                print("Option invalide. Veuillez réessayer.")
+                self.report_view.display_feedback("invalid_option")
 
     def handle_generate_html_report(self):
         """
@@ -54,12 +54,14 @@ class ReportController:
         try:
             tournaments = self.database.load_tournaments()
             if not tournaments:
-                print("Aucun tournoi n'a été trouvé.")
+                self.report_view.display_feedback("no_tournament")
                 return
             self.generate_html_report(tournaments)
             self.open_report_in_browser('tournament_report.html')
-        except Exception as e:
-            print(f"Une erreur est survenue lors de la création du rapport: {str(e)}")
+        except FileNotFoundError as fnf_error:
+            self.report_view.display_feedback("file_not_found_error", error_message=str(fnf_error))
+        except IOError as io_error:
+            self.report_view.display_feedback("io_error", error_message=str(io_error))
 
     def generate_html_report(self, tournaments, output_file='tournament_report.html'):
         """
@@ -78,9 +80,10 @@ class ReportController:
             html_output = template.render(tournaments=tournaments)
             with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(html_output)
-            print(f"Rapport généré avec succès: {output_file}")
+            self.report_view.display_feedback("report_success")
         except Exception as e:
-            print(f"Erreur lors de la génération du rapport: {str(e)}")
+            self.report_view.display_feedback("report_generation_error",error_message=str(e))
+
 
     def open_report_in_browser(self, output_file):
         """
@@ -93,4 +96,6 @@ class ReportController:
             file_path = os.path.abspath(output_file)
             webbrowser.open(f'file://{file_path}')
         except Exception as e:
-            print(f"Erreur lors de l'ouverture du rapport dans le navigateur: {str(e)}")
+            self.report_view.display_feedback("report_browser_error", error_message=str(e))
+
+

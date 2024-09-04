@@ -37,7 +37,6 @@ class Round:
         # Mettre à jour les total_points des joueurs
         for match in round_instance.matches:
             for player, score in match.match:
-                # Trouver le joueur dans le tournoi et récupérer ses total_points
                 player_in_tournament = next((p for p in tournament.selected_players if p.id == player.id), None)
                 if player_in_tournament:
                     player.total_points = player_in_tournament.total_points  # Mise à jour du score à partir du tournoi

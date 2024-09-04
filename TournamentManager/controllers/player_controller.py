@@ -50,8 +50,10 @@ class PlayerController:
             players.append(new_player)
             self.database.save_players(players)
             self.player_view.display_feedback("player_created")
-        except Exception as e:
-            self.player_view.display_feedback("player_creation_error", error_message=str(e))
+        except ValueError as ve:
+            self.player_view.display_feedback("invalid_player_data", error_message=str(ve))
+        except IOError as io_error:
+            self.player_view.display_feedback("database_io_error", error_message=str(io_error))
 
     def delete_player(self):
         """

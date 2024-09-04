@@ -34,7 +34,6 @@ class Tournament:
             "description": self.description,
             "rounds_completed": self.rounds_completed,
             "in_progress": self.in_progress,
-            # Convert players to dict
             "selected_players": [player.to_dict() for player
                                  in self.selected_players],
             "rounds": [round.to_dict() for round in self.rounds]
