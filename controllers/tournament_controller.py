@@ -446,7 +446,7 @@ class TournamentController:
             self.save_tournament_progress(tournament)
         match_number = self.get_next_match_number(round_instance)
         self.tournament_view.display_match_details(round_instance, match, match_number)
-        result = self.tournament_view.get_match_result(match)
+        result = self.tournament_view.prompt_for_match_result(match)
         self.tournament_view.update_match_score(match, result)
         self.end_match(match, tournament)
         self.tournament_view.display_match_end(match)

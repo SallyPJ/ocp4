@@ -44,8 +44,8 @@ class PlayerController:
             If an error occurs during the player creation process, an error message is displayed.
         """
         try:
-            player_details = self.get_player_details()
-            new_player = Player(*player_details)
+            last_name, first_name, birth_date, national_id = self.get_player_details()
+            new_player = Player(last_name, first_name, birth_date, national_id)
             players = self.database.load_players()
             players.append(new_player)
             self.database.save_players(players)
@@ -223,7 +223,7 @@ class PlayerController:
             if not text_utils.validate_national_id(national_id):
                 self.player_view.display_feedback("invalid_national_id")
             else:
-                return national_id
+                return national_id.upper()
 
     def check_new_player_last_name(self):
         while True:
@@ -251,6 +251,6 @@ class PlayerController:
 
         last_name = self.check_new_player_last_name()
         first_name = self.check_new_player_first_name()
-        national_id = self.check_new_player_birthdate()
-        date_of_birth = self.check_new_player_national_id()
+        date_of_birth = self.check_new_player_birthdate()
+        national_id = self.check_new_player_national_id()
         return last_name, first_name, date_of_birth, national_id

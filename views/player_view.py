@@ -34,19 +34,19 @@ class PlayerView(BaseView):
 
     def get_new_player_last_name(self):
         print("*** Enregistrement d'un nouveau joueur ***")
-        last_name = input("Entrez son nom de famille: ")
+        last_name = input("Nom de famille: ")
         return last_name
 
     def get_new_player_first_name(self):
-        return input("Entrer son prénom: ")
+        return input("Prénom: ")
 
     def get_new_player_date_of_birth(self):
         """Prompts the user to enter a valid date of birth."""
-        return input("Entrer sa date de naissance (JJ/MM/AAAA): ")
+        return input("Date de naissance (JJ/MM/AAAA): ")
 
     def get_new_player_national_id(self):
         """Prompts the user to enter the national chess ID."""
-        return input("Entrer son identifiant national d'échec: ")
+        return input("Identifiant national d'échec: ")
 
     def select_players_input(self):
         """

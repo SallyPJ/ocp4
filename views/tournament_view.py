@@ -158,7 +158,7 @@ class TournamentView(BaseView):
         )
         print("=========================================\n")
 
-    def get_match_result(self, match):
+    def prompt_for_match_result(self, match):
         """Prompts the user to input the result of the match."""
         while True:
             try:
