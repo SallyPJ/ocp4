@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport des Tournois</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        h2 { color: #555; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        table, th, td { border: 1px solid #ddd; }
+        th, td { padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .toc { margin-bottom: 20px; }
+        .toc ul { list-style-type: none; padding-left: 0; }
+        .toc li { margin-bottom: 5px; }
+        .toc a { text-decoration: none; color: #007BFF; }
+        .toc a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Rapport des Tournois</h1>
+
+    <!-- Table des matières -->
+    <div class="toc">
+        <h2>Sommaire</h2>
+        <ul>
+            {% for tournament in tournaments %}
+            <li><a href="#tournament-{{ loop.index }}">{{ tournament.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Détails des tournois -->
+    {% for tournament in tournaments %}
+    <h2 id="tournament-{{ loop.index }}">Tournoi: {{ tournament.name }}</h2>
+    <p><strong>Lieu:</strong> {{ tournament.location }}</p>
+    <p><strong>Dates:</strong> {{ tournament.start_date }} - {{ tournament.end_date }}</p>
+    <p><strong>Nombre de rounds:</strong> {{ tournament.number_of_rounds }}</p>
+    <p><strong>Nombre de joueurs:</strong> {{ tournament.number_of_players }}</p>
+    <p><strong>Description:</strong> {{ tournament.description }}</p>
+
+    <h3>Détails des rounds et des matchs</h3>
+    {% for round in tournament.rounds %}
+    <h4>Round {{ round.round_number }}</h4>
+    {% if round.matches %}
+    <table>
+        <thead>
+            <tr>
+                <th>Match</th>
+                <th>Joueur 1</th>
+                <th>Joueur 2</th>
+                <th>Résultats</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for match in round.matches %}
+            <tr>
+                <td>Match {{ loop.index }}</td>
+                <td>{{ match.match[0][0].first_name }} {{ match.match[0][0].last_name }}</td>
+                <td>{{ match.match[1][0].first_name }} {{ match.match[1][0].last_name }}</td>
+                <td>{{ match.match[0][1] }} - {{ match.match[1][1] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Aucun match pour ce round.</p>
+    {% endif %}
+    <p><strong>Début:</strong> {{ round.start_time }} </p>
+    <p><strong>Fin:</strong> {{ round.end_time }}</p>
+    {% endfor %}
+    <!-- Section des scores totaux -->
+    <h3>Total des points par joueur</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Joueur</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for player in tournament.selected_players %}
+            <tr>
+                <td>{{ player.first_name }} {{ player.last_name }}</td>
+                <td>{{ player.total_points }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+</body>
+</html>
