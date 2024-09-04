@@ -28,7 +28,6 @@ class Player:
             "date_of_birth": self.date_of_birth,
             "national_id": self.national_id,
             "total_points": self.total_points,
-
         }
 
     @classmethod

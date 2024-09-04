@@ -27,8 +27,22 @@ class Round:
                    in data["matches"]]
         start_time = data.get("start_time")
         end_time = data.get("end_time")
-        return cls(tournament, data["round_number"], matches,
-                   start_time=start_time, end_time=end_time)
+        round_instance = cls(tournament, data["round_number"], matches,
+                             start_time=start_time, end_time=end_time)
+
+        # Si les paires existent déjà, elles doivent être restaurées
+        if "pairs" in data:
+            round_instance.pairs = [Match.from_dict(match_data) for match_data in data["pairs"]]
+
+        # Mettre à jour les total_points des joueurs
+        for match in round_instance.matches:
+            for player, score in match.match:
+                # Trouver le joueur dans le tournoi et récupérer ses total_points
+                player_in_tournament = next((p for p in tournament.selected_players if p.id == player.id), None)
+                if player_in_tournament:
+                    player.total_points = player_in_tournament.total_points  # Mise à jour du score à partir du tournoi
+
+        return round_instance
 
     def create_pairs(self):
         if self.is_first_round:

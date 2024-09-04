@@ -51,8 +51,8 @@ class Tournament:
             data.get("number_of_rounds", 0),
             data.get("number_of_players", 0),
             data.get("description", ""),
-            data.get("rounds_completed", "Error"),
-            data.get("in_progress", "Error")
+            data.get("rounds_completed", "False"),
+            data.get("in_progress", "False")
         )
         tournament.reference = data.get("reference", str(uuid.uuid4()))
         tournament.selected_players = \
