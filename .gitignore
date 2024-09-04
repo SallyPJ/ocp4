@@ -3,5 +3,6 @@ env/
 .idea/
 __pycache__
 data/
+Tournoi/
 tournament_report.html
 .flake8

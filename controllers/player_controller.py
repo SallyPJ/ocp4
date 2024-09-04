@@ -1,4 +1,4 @@
-from utils import date_utils
+from utils import date_utils, text_utils
 from models.database import Database
 from models.player import Player
 from views.player_view import PlayerView
@@ -105,6 +105,7 @@ class PlayerController:
         return players
 
 
+
     def select_multiple_players(self, players):
         """
         Handles the selection of multiple players using indices but verifies the selection with UUIDs.
@@ -176,8 +177,6 @@ class PlayerController:
             If no players are found, a message is displayed.
         """
         players = sorted(self.database.load_players(), key=lambda player: player.last_name)
-        if not players:
-            self.player_view.display_feedback("no_players")
         return players
 
     def get_player_count(self):
@@ -200,6 +199,38 @@ class PlayerController:
             except ValueError:
                 self.player_view.display_invalid_player_count_message("not_integer")
 
+    def check_new_player_birthdate(self):
+        while True:
+            date_of_birth = self.player_view.get_new_player_date_of_birth()
+            if not date_utils.validate_date(date_of_birth):
+                self.player_view.display_feedback("invalid_birthdate")
+            else:
+                return date_of_birth
+
+    def check_new_player_national_id(self):
+        while True:
+            national_id = self.player_view.get_new_player_national_id()
+            if not text_utils.validate_national_id(national_id):
+                self.player_view.display_feedback("invalid_national_id")
+            else:
+                return national_id
+
+    def check_new_player_last_name(self):
+        while True:
+            last_name = self.player_view.get_new_player_last_name()
+            if last_name is None:
+                self.player_view.display_feedback("empty_field")
+            else:
+                return last_name.upper()
+
+    def check_new_player_first_name(self):
+        while True:
+            first_name = self.player_view.get_new_player_first_name()
+            if first_name is None:
+                self.player_view.display_feedback("empty_field")
+            else:
+                return first_name.capitalize()
+
     def get_player_details(self):
         """
         Collect player details from user input and validate the date of birth.
@@ -207,9 +238,9 @@ class PlayerController:
         Returns:
             tuple: A tuple containing last_name, first_name, date_of_birth, and national_id.
         """
-        while True:
-            last_name, first_name, date_of_birth, national_id = self.player_view.prompt_for_player_details()
-            if date_utils.validate_date(date_of_birth):
-                return last_name, first_name, date_of_birth, national_id
-            else:
-                self.player_view.display_feedback("invalid_birthdate")
+
+        last_name = self.check_new_player_last_name()
+        first_name = self.check_new_player_first_name()
+        national_id = self.check_new_player_birthdate()
+        date_of_birth = self.check_new_player_national_id()
+        return last_name, first_name, date_of_birth, national_id

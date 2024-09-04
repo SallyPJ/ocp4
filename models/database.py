@@ -4,7 +4,6 @@ import os
 from models.player import Player
 from models.tournament import Tournament
 
-
 class Database:
     """
     The Database class provides methods for persisting and retrieving data related to players and tournaments.
@@ -32,6 +31,8 @@ class Database:
         with open(cls.PLAYERS_FILE, 'r', encoding='utf-8') as file:
             data = json.load(file)
             return [Player.from_dict(player) for player in data]
+
+
 
     @classmethod
     def save_players(cls, players):

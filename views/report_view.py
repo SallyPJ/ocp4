@@ -41,8 +41,6 @@ class ReportView(BaseView):
         """
         if message_type == "no_tournament":
             print("Aucun tournoi n'a été trouvé.")
-        elif message_type == "file_not_found_error" and error_message is not None:
-            print(f"Le fichier n'a pas été trouvé : {error_message}.")
         elif message_type == "io_error" and error_message is not None:
             print(f"Erreur d'accès à la base de données : {error_message}.")
         elif message_type == "report_success":

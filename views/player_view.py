@@ -32,25 +32,21 @@ class PlayerView(BaseView):
         print("==========================================")
         return input("Choisir une option: ")
 
-    def prompt_for_player_details(self):
-        """
-        Prompts the user to enter the details of a new player.
+    def get_new_player_last_name(self):
+        print("*** Enregistrement d'un nouveau joueur ***")
+        last_name = input("Entrez son nom de famille: ")
+        return last_name
 
-        The details include:
-        - Last name
-        - First name
-        - Date of birth
-        - National chess ID
+    def get_new_player_first_name(self):
+        return input("Entrer son prénom: ")
 
-        Returns:
-            tuple: A tuple containing the player's last name, first name, date of birth, and national ID.
-        """
-        print("Enregistrement d'un nouveau joueur")
-        last_name = input("Entrer le nom de famille: ")
-        first_name = input("Entrer le prénom: ")
-        date_of_birth = input("Entrer la date de naissance (JJ/MM/AAAA): ")
-        national_id = input("Entrer l'identifiant national d'échec: ")
-        return last_name, first_name, date_of_birth, national_id
+    def get_new_player_date_of_birth(self):
+        """Prompts the user to enter a valid date of birth."""
+        return input("Entrer sa date de naissance (JJ/MM/AAAA): ")
+
+    def get_new_player_national_id(self):
+        """Prompts the user to enter the national chess ID."""
+        return input("Entrer son identifiant national d'échec: ")
 
     def select_players_input(self):
         """
@@ -89,7 +85,7 @@ class PlayerView(BaseView):
         elif message_type == "player_creation_error" and error_message:
             print(f"❌ Erreur lors de la création du joueur : {error_message}")
         elif message_type == "players_display_error" and error_message:
-            print(f"Une erreur est survenue lors de l'affichage des joueurs : {error_message}")
+            print(f"❌ Une erreur est survenue lors de l'affichage des joueurs : {error_message}")
         elif message_type == "no_players":
             print("⚠️ Aucun joueur enregistré.")
         elif message_type == "players_reset":
@@ -101,7 +97,9 @@ class PlayerView(BaseView):
         elif message_type == "player_deletion_error" and error_message:
             print(f"❌ Erreur lors de la suppression du/des joueur(s): {error_message}")
         elif message_type == "invalid_birthdate":
-            print("La date de naissance n'est pas valide. Veuillez entrer la date au format JJ/MM/AAAA.")
+            print("❌ La date de naissance n'est pas valide. Veuillez entrer la date au format JJ/MM/AAAA.")
+        elif message_type == "invalid_national_id":
+            print("❌ L'identifiant national d'échec doit contenir 2 lettres suivies de 5 chiffres.")
         else:
             super().display_feedback(message_type)
 

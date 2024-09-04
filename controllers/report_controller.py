@@ -34,13 +34,11 @@ class ReportController:
         2. Exit reporting menu and open Main Menu
         """
         while True:
-            # Show the reports menu and get the user's choice
             choice = self.report_view.display_reports_main_menu()
             if choice == '1':
                 self.handle_generate_html_report()
                 break
             elif choice == '2':
-                # Exit reporting menu et open Main Menu
                 break
             else:
                 self.report_view.display_feedback("invalid_option")
