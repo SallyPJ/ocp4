@@ -42,7 +42,7 @@ Navigate to the directory containing the project files in your terminal or comma
  ```bash
 pip install -r requirements.txt
  ```
-### 5. Run the program
+### 4. Run the program
  ```bash
 python main.py
  ```
