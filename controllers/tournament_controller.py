@@ -450,6 +450,24 @@ class TournamentController:
         self.tournament_view.display_match_details(round_instance, match, match_number)
         result = self.tournament_view.prompt_for_match_result(match)
         self.tournament_view.update_match_score(match, result)
+        # Récupérer les informations des joueurs et scores
+        player1_info, player2_info = match.match
+        player1_first_name = player1_info[0].first_name
+        player1_last_name = player1_info[0].last_name
+        player2_first_name = player2_info[0].first_name
+        player2_last_name = player2_info[0].last_name
+        score1 = player1_info[1]
+        score2 = player2_info[1]
+
+        # Trouver les objets Player correspondants dans selected_players du tournoi via prénom et nom
+        player1 = next(player for player in tournament.selected_players
+                       if player.first_name == player1_first_name and player.last_name == player1_last_name)
+        player2 = next(player for player in tournament.selected_players
+                       if player.first_name == player2_first_name and player.last_name == player2_last_name)
+
+        # Incrémenter les total_points des joueurs
+        player1.total_points += score1
+        player2.total_points += score2
         self.end_match(match, tournament)
         self.tournament_view.display_match_end(match)
 
