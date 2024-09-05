@@ -126,7 +126,7 @@ class TournamentController:
         """
         current_round_index = self.determine_current_round_index(tournament)
         for round_number in range(current_round_index + 1, tournament.number_of_rounds + 1):
-            round_instance = self.get_or_create_round(tournament, round_number)
+            round_instance = self.get_round(tournament, round_number)
             self.play_round(round_instance, tournament)
             self.process_round_results(tournament, round_instance)
             self.tournament_view.display_players_global_scores(tournament)
@@ -173,6 +173,7 @@ class TournamentController:
             self.tournament_view.display_feedback("not_enough_players")
             return False
         return True
+
     def create_tournament(self):
         """
         Creates a new tournament by collecting necessary details from the user.
@@ -532,7 +533,7 @@ class TournamentController:
         player1.add_opponent(player2)
         player2.add_opponent(player1)
 
-    def get_or_create_round(self, tournament, round_number):
+    def get_round(self, tournament, round_number):
         """
         Retrieves or creates a round instance based on the round number.
 
@@ -545,12 +546,16 @@ class TournamentController:
         """
         round_instance = self.get_current_round(tournament, round_number)
         if round_instance is None:
-            is_first_round = (round_number == 1)
-            round_instance = Round(tournament, round_number=round_number,
-                                   is_first_round=is_first_round)
-            round_instance.start_time = date_utils.get_current_datetime()
-            tournament.rounds.append(round_instance)
-            self.database.save_tournament_update(tournament)
+            round_instance = self.create_round(tournament, round_number)
+        return round_instance
+
+    def create_round(self, tournament, round_number):
+        is_first_round = (round_number == 1)
+        round_instance = Round(tournament, round_number=round_number,
+                               is_first_round=is_first_round)
+        round_instance.start_time = date_utils.get_current_datetime()
+        tournament.rounds.append(round_instance)
+        self.database.save_tournament_update(tournament)
         return round_instance
 
     def display_tournament_report(self, tournament):
