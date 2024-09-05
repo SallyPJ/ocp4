@@ -479,8 +479,6 @@ class TournamentController:
             match (Match): The match instance to mark as finished.
             tournament (Tournament): The tournament instance to update.
         """
-        for player, score in match.match:
-            player.total_points += score
         match.finished = True
         match.in_progress = False
         self.database.save_tournament_update(tournament)
