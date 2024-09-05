@@ -16,5 +16,3 @@ class BaseView:
             print("⚠️ Aucun joueur sélectionné.")
         elif message_type == "empty_field":
             print("❌ Le champ ne doit pas être vide.")
-
-

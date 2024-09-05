@@ -70,7 +70,8 @@ class TournamentView(BaseView):
 
     def get_tournament_user_feedbacks(self):
         """
-        Prompts the user to enter feedback or general remarks about a completed tournament.
+        Prompts the user to enter feedback or general remarks
+        about a completed tournament.
 
         Returns:
             str: The feedback entered by the user.
@@ -82,7 +83,8 @@ class TournamentView(BaseView):
 
     def show_tournament_launcher_menu(self):
         """
-        Displays the tournament launcher menu, allowing the user to start or resume the tournament.
+        Displays the tournament launcher menu, allowing the user
+        to start or resume the tournament.
 
         Returns:
             str: The option selected by the user.
@@ -97,12 +99,22 @@ class TournamentView(BaseView):
 
     def get_tournament_selection(self):
         """
-        Demande à l'utilisateur de sélectionner un ou plusieurs tournois.
+        Prompts the user to select one or more tournaments.
+
+        Returns:
+            str: The user's input, representing the selected tournament(s).
         """
         return input("Entrez le numéro d'un ou plusieurs tournois "
                      "(séparés par une virgule): ")
 
     def display_players_global_scores(self, tournament):
+        """
+        Displays the cumulative scores of players in the tournament.
+
+        Args:
+            tournament (Tournament): The tournament instance containing
+            the players and their scores.
+        """
         print("+-+-+-+ Scores cumulés  +-+-+-+")
         table_data = []
         for player in tournament.selected_players:
@@ -112,7 +124,14 @@ class TournamentView(BaseView):
         print(tabulate(table_data, headers=headers, tablefmt="grid"))
 
     def display_feedback(self, message_type, tournament=None):
-        # Display a message to the user
+        """
+        Displays feedback messages based on the given message type.
+
+        Args:
+            message_type (str): The type of message to display.
+            tournament (Tournament, optional): The tournament
+            instance for additional context.
+        """
         if message_type == "players_added":
             print("✅ Joueurs ajoutés au tournoi avec succès.")
         elif message_type == "incorrect_players_number" and tournament is not None:
@@ -124,20 +143,27 @@ class TournamentView(BaseView):
         elif message_type == "empty_feedback":
             print("⚠️ Veuillez renseigner un commentaire.")
         elif message_type == "no_filter":
-            print("⚠️ Aucun statut de filtre spécifié. Affichage de tous les tournois.")
+            print("⚠️ Aucun statut de filtre spécifié. Affichage de "
+                  "tous les tournois.")
         elif message_type == "invalid_filter_status":
             print("❌ Statut du filtre non valide. Veuillez utiliser 'not_started', "
                   "'in_progress', 'not_finished' ou 'finished'.")
         elif message_type == "invalid_round_count":
             print("❌ Le nombre de tours doit être compris entre 1 et 30.")
         elif message_type == "invalid_number_input":
-            print("❌ Ce n'est pas un nombre entier valide. Veuillez entrer un nombre entier entre 1 et 30.")
+            print("❌ Ce n'est pas un nombre entier valide. Veuillez entrer "
+                  "un nombre entier entre 1 et 30.")
         elif message_type == "invalid_choice_YN":
-            print("❌ Choix invalide. Veuillez entrer 'O' pour oui ou 'N' pour non.")
+            print("❌ Choix invalide. Veuillez entrer 'O' pour oui ou "
+                  "'N' pour non.")
         if message_type == "no_player_file":
-            print("⚠️ Le fichier 'players.json' n'existe pas. Impossible de créer un tournoi sans joueurs.")
+            print("⚠️ Le fichier 'players.json' n'existe pas. Impossible "
+                  "de créer un tournoi sans joueurs.")
         elif message_type == "not_enough_players":
-            print("⚠️ Il doit y avoir au moins deux joueurs enregistrés pour créer un tournoi.")
+            print("⚠️ Il doit y avoir au moins deux joueurs enregistrés "
+                  "pour créer un tournoi.")
+        elif message_type == "filter_no_tournament":
+            print("❌ Aucun tournoi à afficher pour le statut spécifié.")
         else:
             super().display_feedback(message_type)
 
@@ -163,8 +189,10 @@ class TournamentView(BaseView):
         while True:
             try:
                 print("Veuillez choisir le résultat du match :")
-                print(f"1️⃣  Victoire pour {match.match[0][0].first_name} {match.match[0][0].last_name}")
-                print(f"2️⃣  Victoire pour {match.match[1][0].first_name} {match.match[1][0].last_name}")
+                print(f"1️⃣  Victoire pour {match.match[0][0].first_name} "
+                      f"{match.match[0][0].last_name}")
+                print(f"2️⃣  Victoire pour {match.match[1][0].first_name} "
+                      f"{match.match[1][0].last_name}")
                 print("3️⃣  Egalité")
                 choice = int(input("Votre choix (1, 2, 3) : "))
                 if choice in [1, 2, 3]:
@@ -178,10 +206,12 @@ class TournamentView(BaseView):
         """Updates the score of the match based on the result."""
         if result == 1:
             match.match[0][1] = 1
-            print(f"\n✅  {match.match[0][0].first_name} {match.match[0][0].last_name} remporte la partie !\n")
+            print(f"\n✅  {match.match[0][0].first_name} "
+                  f"{match.match[0][0].last_name} remporte la partie !\n")
         elif result == 2:
             match.match[1][1] = 1
-            print(f"\n✅  {match.match[1][0].first_name} {match.match[1][0].last_name} remporte la partie !\n")
+            print(f"\n✅  {match.match[1][0].first_name} "
+                  f"{match.match[1][0].last_name} remporte la partie !\n")
         elif result == 3:
             match.match[0][1] = 0.5
             match.match[1][1] = 0.5
@@ -192,22 +222,20 @@ class TournamentView(BaseView):
         print(f"Fin du match. Résultats: {match.get_match_results()}")
 
     def display_tournament_table(self, table, headers):
-        """Affiche la liste des tournois sous forme de table."""
+        """Displays tournament's list as a table"""
         print("Liste de tous les tournois:")
         print(tabulate(table, headers, tablefmt="pretty",
                        colalign=("left", "left", "left", "left")))
 
-    def display_no_tournaments_message(self):
-        """Affiche un message quand aucun tournoi n'est disponible."""
-        print("❌ Aucun tournoi à afficher pour le statut spécifié.")
-
     def display_tournament_details(self, tournament_details):
         print("Détails du tournoi :")
-        print(tabulate(tournament_details, tablefmt="grid", colalign=("left", "left")))
+        print(tabulate(tournament_details, tablefmt="grid",
+                       colalign=("left", "left")))
 
     def display_players(self, players, player_headers):
-        print(f'Joueurs inscrits au tournoi:')
-        print(tabulate(players, player_headers, tablefmt="grid", colalign=("left", "left", "left", "left")))
+        print("Joueurs inscrits au tournoi:")
+        print(tabulate(players, player_headers, tablefmt="grid",
+                       colalign=("left", "left", "left", "left")))
 
     def display_no_players_message(self, tournament_name):
         print(f"Le tournoi '{tournament_name}' n'a pas de joueurs sélectionnés.")
@@ -217,13 +245,16 @@ class TournamentView(BaseView):
         for round_info in rounds:
             print(f"Round {round_info['round_number']}:")
             if round_info['matches']:
-                print(tabulate(round_info['matches'], headers=round_info['headers'], tablefmt="grid"))
+                print(tabulate(round_info['matches'],
+                               headers=round_info['headers'], tablefmt="grid"))
             else:
                 print("Aucun match pour ce round.")
-            print(f"Début du round: {round_info['start_time']} - Fin du round : {round_info['end_time']}")
+            print(f"Début du round: {round_info['start_time']} - "
+                  f"Fin du round : {round_info['end_time']}")
 
     def display_player_scores(self, table_data, headers):
-        print(tabulate(table_data, headers=headers, tablefmt="pretty", colalign=("left", "right")))
+        print(tabulate(table_data, headers=headers, tablefmt="pretty",
+                       colalign=("left", "right")))
 
     def display_tournament_description(self, description):
         print(f"Remarques et commentaires généraux sur le tournoi : {description}")

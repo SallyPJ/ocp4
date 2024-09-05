@@ -3,11 +3,14 @@ from models.database import Database
 from models.player import Player
 from views.player_view import PlayerView
 
+
 class PlayerController:
     """
-    Controller class responsible for managing player-related operations such as
-    creating players, displaying registered players, and interacting with the view.
+    Controller class responsible for managing player-related
+    operations such as creating players, displaying registered players,
+     and interacting with the view.
     """
+
     def __init__(self):
         self.player_view = PlayerView()
         self.database = Database()
@@ -37,11 +40,12 @@ class PlayerController:
 
     def create_player(self):
         """
-        Handles the creation of a new player by gathering details from the user and saving
-        the player to the database.
+        Handles the creation of a new player by gathering details
+        from the user and saving the player to the database.
 
         Exceptions:
-            If an error occurs during the player creation process, an error message is displayed.
+            If an error occurs during the player creation process,
+            an error message is displayed.
         """
         try:
             last_name, first_name, birth_date, national_id = self.get_player_details()
@@ -51,19 +55,23 @@ class PlayerController:
             self.database.save_players(players)
             self.player_view.display_feedback("player_created")
         except ValueError as ve:
-            self.player_view.display_feedback("invalid_player_data", error_message=str(ve))
+            self.player_view.display_feedback("invalid_player_data",
+                                              error_message=str(ve))
         except IOError as io_error:
-            self.player_view.display_feedback("database_io_error", error_message=str(io_error))
+            self.player_view.display_feedback("database_io_error",
+                                              error_message=str(io_error))
 
     def delete_player(self):
         """
-        Handles the deletion of a player by allowing the user to select one or more players
-        from the list of registered players.
+        Handles the deletion of a player by allowing the user to select
+        one or more players from the list of registered players.
 
-        The user can press 'Q' to cancel the operation and return to the main menu.
+        The user can press 'Q' to cancel the operation and
+        return to the main menu.
 
         Exceptions:
-            If an error occurs during the deletion process, an error message is displayed.
+            If an error occurs during the deletion process,
+            an error message is displayed.
         """
         try:
             players = self.display_sorted_players()
@@ -81,14 +89,17 @@ class PlayerController:
                     for player in selected_players:
                         players.remove(player)
                     self.database.save_players(players)
-                    self.player_view.display_feedback("players_deleted", selected_players)
+                    self.player_view.display_feedback("players_deleted",
+                                                      selected_players)
                     break
                 else:
                     continue
         except FileNotFoundError as fnf:
-            self.player_view.display_feedback("fnf_error", error_message=str(fnf))
+            self.player_view.display_feedback("fnf_error",
+                                              error_message=str(fnf))
         except Exception as e:
-            self.player_view.display_feedback("database_io_error", error_message=str(e))
+            self.player_view.display_feedback("database_io_error",
+                                              error_message=str(e))
 
     def display_sorted_players(self):
         """
@@ -98,7 +109,8 @@ class PlayerController:
             list: A sorted list of player objects.
 
         Exceptions:
-            If an error occurs during the player display process, an error message is displayed.
+            If an error occurs during the player display process,
+            an error message is displayed.
         """
         try:
             players = self.sort_players_alphabetically()
@@ -108,29 +120,32 @@ class PlayerController:
             self.player_view.display_players_list(players)
             return players
         except FileNotFoundError as fnf:
-            self.player_view.display_feedback("fnf_error", error_message=str(fnf))
-
-
+            self.player_view.display_feedback("fnf_error",
+                                              error_message=str(fnf))
 
     def select_multiple_players(self, players):
         """
-        Handles the selection of multiple players using indices but verifies the selection with UUIDs.
+        Handles the selection of multiple players using indices
+        but verifies the selection with UUIDs.
 
         Args:
             players (list): The list of player objects to select from.
 
         Returns:
-            list or str: A list of selected player objects, or 'quit' if the user chooses to exit.
+            list or str: A list of selected player objects,
+            or 'quit' if the user chooses to exit.
         """
         index_uuid_map = {idx + 1: player.id for idx, player in enumerate(players)}
         selected_indices = self.player_view.select_players_input()
         if selected_indices.strip().lower() == 'q':
             return "quit"
-        selected_players = self.process_player_choices(selected_indices, players, index_uuid_map)
+        selected_players = self.process_player_choices(selected_indices,
+                                                       players, index_uuid_map)
         return selected_players
 
     def process_player_choices(self, user_input, players, uuid_index_map):
-        """Processes the user's player selection input based on indices and maps them to player objects.
+        """Processes the user's player selection input
+        based on indices and maps them to player objects.
 
         Args:
             user_input (str): The indices entered by the user.
@@ -141,9 +156,12 @@ class PlayerController:
             list: A list of selected player objects.
         """
         try:
-            indices = [int(choice.strip()) - 1 for choice in user_input.split(',')]
-            selected_uuids = {uuid_index_map.get(idx + 1) for idx in indices if 0 <= idx < len(players)}
-            selected_players = [player for player in players if player.id in selected_uuids]
+            indices = [int(choice.strip()) - 1 for choice
+                       in user_input.split(',')]
+            selected_uuids = {uuid_index_map.get(idx + 1) for idx
+                              in indices if 0 <= idx < len(players)}
+            selected_players = [player for player in players
+                                if player.id in selected_uuids]
 
             return selected_players
         except ValueError:
@@ -182,7 +200,8 @@ class PlayerController:
         Exceptions:
             If no players are found, a message is displayed.
         """
-        players = sorted(self.database.load_players(), key=lambda player: player.last_name)
+        players = sorted(self.database.load_players(),
+                         key=lambda player: player.last_name)
         return players
 
     def get_player_count(self):
@@ -198,12 +217,14 @@ class PlayerController:
             try:
                 number_of_players = int(user_input)
                 if number_of_players <= 0:
-                    self.player_view.display_invalid_player_count_message("negative_or_zero")
+                    self.player_view.display_invalid_player_count_message("negative_"
+                                                                          "or_zero")
                 elif number_of_players % 2 != 0:
-                    self.player_view.display_invalid_player_count_message("not_even")
-                    # Check if the selected number of players is less than or equal to the registered players
+                    self.player_view.display_invalid_player_count_message(
+                        "not_even")
                 elif number_of_players > len(registered_players):
-                    self.player_view.display_invalid_player_count_message("too_many_players", len(registered_players))
+                    self.player_view.display_invalid_player_count_message(
+                        "too_many_players", len(registered_players))
                 else:
                     return number_of_players
             except ValueError:
@@ -246,7 +267,8 @@ class PlayerController:
         Collect player details from user input and validate the date of birth.
 
         Returns:
-            tuple: A tuple containing last_name, first_name, date_of_birth, and national_id.
+            tuple: A tuple containing last_name, first_name,
+            date_of_birth, and national_id.
         """
 
         last_name = self.check_new_player_last_name()

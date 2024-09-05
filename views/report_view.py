@@ -48,6 +48,7 @@ class ReportView(BaseView):
         elif message_type == "report_generation_error" and error_message is not None:
             print(f"Erreur lors de la génération du rapport: {error_message}")
         elif message_type == "report_browser_error" and error_message is not None:
-            print(f"Erreur lors de l'ouverture du rapport dans le navigateur: {error_message}")
+            print(f"Erreur lors de l'ouverture du "
+                  f"rapport dans le navigateur: {error_message}")
         else:
             super().display_feedback(message_type)

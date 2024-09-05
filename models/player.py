@@ -27,13 +27,15 @@ class Player:
 
     def __lt__(self, other):
         """
-       Defines the behavior for the less-than operator (<) based on the player's last name.
+       Defines the behavior for the less-than operator (<)
+       based on the player's last name.
 
        Args:
            other (Player): Another Player object for comparison.
 
        Returns:
-           bool: True if the player's last name comes before the other's last name alphabetically.
+           bool: True if the player's last name comes
+           before the other's last name alphabetically.
        """
         return self.last_name.lower() < other.last_name.lower()
 

@@ -4,14 +4,17 @@ from views.base_view import BaseView
 
 class PlayerView(BaseView):
     """
-    PlayerView handles the user interface for player management within the application.
+    PlayerView handles the user interface for player
+    management within the application.
 
-    It provides methods for displaying menus, prompting user inputs, displaying lists of players,
+    It provides methods for displaying menus,
+    prompting user inputs, displaying lists of players,
     and showing feedback messages related to player operations.
     """
     def display_players_menu(self):
         """
-        Displays the player management menu and prompts the user to choose an option.
+        Displays the player management menu and prompts
+        the user to choose an option.
 
         The menu includes options for:
         1. Registering a new player.
@@ -50,7 +53,8 @@ class PlayerView(BaseView):
 
     def select_players_input(self):
         """
-        Prompts the user to select players by entering their corresponding numbers.
+        Prompts the user to select players by entering
+        their corresponding numbers.
 
         Returns:
             str: A comma-separated string of selected player numbers.
@@ -77,15 +81,18 @@ class PlayerView(BaseView):
 
         Args:
             message_type (str): The type of feedback message to display.
-            players (list, optional): A list of players involved in the operation (used for deletion feedback).
-            error_message (str, optional): An error message to display if applicable.
+            players (list, optional): A list of players involved in the
+            operation (used for deletion feedback).
+            error_message (str, optional): An error message to display
+            if applicable.
         """
         if message_type == "player_created":
             print("✅ Joueur créé avec succès.")
         elif message_type == "player_creation_error" and error_message:
             print(f"❌ Erreur lors de la création du joueur : {error_message}")
         elif message_type == "players_display_error" and error_message:
-            print(f"❌ Une erreur est survenue lors de l'affichage des joueurs : {error_message}")
+            print(f"❌ Une erreur est survenue lors de l'affichage "
+                  f"des joueurs : {error_message}")
         elif message_type == "no_players":
             print("⚠️ Aucun joueur enregistré.")
         elif message_type == "players_reset":
@@ -95,9 +102,11 @@ class PlayerView(BaseView):
             for player in players:
                 print(f"- {player.first_name} {player.last_name}")
         elif message_type == "invalid_birthdate":
-            print("❌ La date de naissance n'est pas valide. Veuillez entrer la date au format JJ/MM/AAAA.")
+            print("❌ La date de naissance n'est pas valide. Veuillez entrer "
+                  "la date au format JJ/MM/AAAA.")
         elif message_type == "invalid_national_id":
-            print("❌ L'identifiant national d'échec doit contenir 2 lettres suivies de 5 chiffres.")
+            print("❌ L'identifiant national d'échec doit contenir "
+                  "2 lettres suivies de 5 chiffres.")
         elif message_type == "fnf_error" and error_message:
             print(f"❌ Erreur lors lors du chargement du fichier: {error_message}")
         else:
@@ -149,6 +158,7 @@ class PlayerView(BaseView):
         elif message_type == "not_even":
             print("❌ Le nombre de joueurs doit être un nombre pair.")
         elif message_type == "too_many_players" and max_players is not None:
-            print(f"❌ Le nombre de joueurs sélectionné dépasse le nombre de joueurs enregistrés ({max_players} joueurs disponibles).")
+            print(f"❌ Le nombre de joueurs sélectionné dépasse le nombre de"
+                  f" joueurs enregistrés ({max_players} joueurs disponibles).")
         elif message_type == "not_integer":
             print("❌ Veuillez entrer un nombre entier valide.")

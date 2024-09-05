@@ -11,10 +11,13 @@ from views.tournament_view import TournamentView
 
 class ReportController:
     """
-       The ReportController class manages the generation and display of reports within the application.
+       The ReportController class manages the generation and
+       display of reports within the application.
 
-       It handles user interactions related to report generation, including creating HTML reports for tournaments
-       and displaying them in the web browser. The controller interacts with the database to retrieve tournament data,
+       It handles user interactions related to report generation,
+       including creating HTML reports for tournaments
+       and displaying them in the web browser. The controller interacts
+       with the database to retrieve tournament data,
        and uses Jinja2 templates to format the reports.
     """
     def __init__(self):
@@ -46,7 +49,8 @@ class ReportController:
     def handle_generate_html_report(self):
         """
         Handles the generation and display of an HTML report for all tournaments.
-        This method loads the tournament data from the database, generates an HTML report using a Jinja2 template,
+        This method loads the tournament data from the database,
+        generates an HTML report using a Jinja2 template,
         and then opens the report in the default web browser.
         """
         try:
@@ -57,9 +61,11 @@ class ReportController:
             self.generate_html_report(tournaments)
             self.open_report_in_browser('tournament_report.html')
         except FileNotFoundError as fnf_error:
-            self.report_view.display_feedback("fnf_error", error_message=str(fnf_error))
+            self.report_view.display_feedback("fnf_error",
+                                              error_message=str(fnf_error))
         except IOError as io_error:
-            self.report_view.display_feedback("io_error", error_message=str(io_error))
+            self.report_view.display_feedback("io_error",
+                                              error_message=str(io_error))
 
     def generate_html_report(self, tournaments, output_file='tournament_report.html'):
         """
@@ -80,8 +86,8 @@ class ReportController:
                 f.write(html_output)
             self.report_view.display_feedback("report_success")
         except Exception as e:
-            self.report_view.display_feedback("report_generation_error",error_message=str(e))
-
+            self.report_view.display_feedback("report_generation_error",
+                                              error_message=str(e))
 
     def open_report_in_browser(self, output_file):
         """
@@ -94,6 +100,5 @@ class ReportController:
             file_path = os.path.abspath(output_file)
             webbrowser.open(f'file://{file_path}')
         except Exception as e:
-            self.report_view.display_feedback("report_browser_error", error_message=str(e))
-
-
+            self.report_view.display_feedback("report_browser_error",
+                                              error_message=str(e))

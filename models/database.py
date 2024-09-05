@@ -4,28 +4,33 @@ import os
 from models.player import Player
 from models.tournament import Tournament
 
+
 class Database:
     """
-    The Database class provides methods for persisting and retrieving data related to players and tournaments.
-    It uses JSON files to store the data and provides an interface for loading and saving data in these files.
+    The Database class provides methods for persisting and
+    retrieving data related to players and tournaments.
+    It uses JSON files to store the data and provides an interface
+    for loading and saving data in these files.
     """
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     PLAYERS_FILE = os.path.join(BASE_DIR, "data", "players.json")
     TOURNAMENTS_FILE = os.path.join(BASE_DIR, "data", "tournaments.json")
 
-
     @classmethod
     def check_for_data_directory(cls):
         if not os.path.exists(os.path.dirname(cls.PLAYERS_FILE)):
             os.makedirs(os.path.dirname(cls.PLAYERS_FILE))
+
     @classmethod
     def load_players(cls):
         """
         Load players from the JSON file.
 
         If the data repertory does not exist, it creates it.
-        If the players file does not exist, it initializes an empty file and returns an empty list.
-        Otherwise, it reads the data from the file, converts it into Player objects, and returns a list of these players.
+        If the players file does not exist, it initializes an
+        empty file and returns an empty list.
+        Otherwise, it reads the data from the file, converts it into Player objects,
+        and returns a list of these players.
 
         Returns:
             list[Player]: A list of Player objects.
@@ -44,7 +49,8 @@ class Database:
         """
         Save a list of players to the JSON file.
 
-        The method converts the Player objects into dictionaries and writes them to the file in JSON format.
+        The method converts the Player objects into dictionaries
+        and writes them to the file in JSON format.
 
         Args:
             players (list[Player]): A list of Player objects to save.
@@ -59,8 +65,10 @@ class Database:
         Load tournaments from the JSON file.
 
         If the data repertory does not exist, it creates it.
-        This method reads the tournament data from the file, converts it into Tournament objects, and returns a list of these tournaments.
-        If the file does not exist or if there's an error during the loading process, it returns an empty list.
+        This method reads the tournament data from the file, converts it into
+        Tournament objects, and returns a list of these tournaments.
+        If the file does not exist or if there's an error during the loading process,
+        it returns an empty list.
 
         Returns:
             list[Tournament]: A list of Tournament objects.
@@ -81,7 +89,8 @@ class Database:
         """
         Save a list of tournaments to the JSON file.
 
-        The method converts the Tournament objects into dictionaries and writes them to the file in JSON format.
+        The method converts the Tournament objects into dictionaries
+        and writes them to the file in JSON format.
 
         Args:
             tournaments (list[Tournament]): A list of Tournament objects to save.
@@ -96,7 +105,8 @@ class Database:
         """
         Update an existing tournament in the JSON file.
 
-        The method loads all tournaments, finds the one with the matching reference, updates it, and saves the updated list back to the file.
+        The method loads all tournaments, finds the one with the matching reference,
+        updates it, and saves the updated list back to the file.
         If the tournament is not found, a ValueError is raised.
 
         Args:

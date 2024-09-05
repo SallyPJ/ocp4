@@ -6,21 +6,28 @@ class Match:
     A class to represent a match between two players in a tournament round.
 
     Attributes:
-        match (list): A list containing two sub-lists, each with a Player object and their score.
-        round_number (int): The number of the round in which this match takes place.
-        finished (bool): A flag indicating whether the match has finished.
-        in_progress (bool): A flag indicating whether the match is currently in progress.
+        match (list): A list containing two sub-lists,
+        each with a Player object and their score.
+        round_number (int): The number of the round in
+        which this match takes place.
+        finished (bool): A flag indicating whether
+        the match has finished.
+        in_progress (bool): A flag indicating whether the
+        match is currently in progress.
     """
     def __init__(self, player1, player2,
                  finished=False, in_progress=False):
         """
-        Initialize a Match object with two players, the round number, and flags for status.
+        Initialize a Match object with two players, the round number,
+        and flags for status.
 
         Args:
             player1 (Player): The first player in the match.
             player2 (Player): The second player in the match.
-            finished (bool): Defaults to False. Indicates if the match is finished.
-            in_progress (bool): Defaults to False. Indicates if the match is in progress.
+            finished (bool): Defaults to False.
+            Indicates if the match is finished.
+            in_progress (bool): Defaults to False.
+            Indicates if the match is in progress.
         """
         self.match = ([player1, 0], [player2, 0])
         self.finished = finished
@@ -28,10 +35,12 @@ class Match:
 
     def to_dict(self):
         """
-        Convert the Match object into a dictionary for serialization. Used to serialize data to the database.
+        Convert the Match object into a dictionary for serialization.
+        Used to serialize data to the database.
 
         Returns:
-            dict: A dictionary representation of the match, including players' details and scores.
+            dict: A dictionary representation of the match,
+            including players' details and scores.
         """
         return {
             "match": [
@@ -46,7 +55,8 @@ class Match:
     @classmethod
     def from_dict(cls, data):
         """
-        Create a Match object from a dictionary. Used to unserialize data from the database.
+        Create a Match object from a dictionary.
+        Used to unserialize data from the database.
 
         Args:
             data (dict): A dictionary containing match information.
@@ -80,7 +90,8 @@ class Match:
         Get the results of the match as a dictionary.
 
         Returns:
-            dict: A dictionary with player names as keys and their scores as values.
+            dict: A dictionary with player names as keys
+            and their scores as values.
         """
         return {
             f"{self.match[0][0].first_name} {self.match[0][0].last_name}":
@@ -88,4 +99,3 @@ class Match:
             f"{self.match[1][0].first_name} {self.match[1][0].last_name}":
                 self.match[1][1]
         }
-

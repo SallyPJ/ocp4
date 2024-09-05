@@ -60,7 +60,8 @@ class Round:
                              start_time=start_time, end_time=end_time)
         # Restore pairs if they exist
         if "pairs" in data:
-            round_instance.pairs = [Match.from_dict(match_data) for match_data in data["pairs"]]
+            round_instance.pairs = [Match.from_dict(match_data)
+                                    for match_data in data["pairs"]]
 
         return round_instance
 
@@ -90,7 +91,8 @@ class Round:
         """
         Creates player pairs based on their total points in descending order.
 
-        Players with similar points are paired together. If no suitable opponent is found in the same group,
+        Players with similar points are paired together.
+        f no suitable opponent is found in the same group,
         lower point groups are considered.
         """
         # Sort players by total points in descending order
@@ -195,7 +197,8 @@ class Round:
             possible_opponents (list): A list of potential opponents.
 
         Returns:
-            Player: The best available opponent, or None if no suitable opponent is found.
+            Player: The best available opponent, or
+            None if no suitable opponent is found.
         """
         for player2 in possible_opponents:
             if not player1.has_played_against(player2):

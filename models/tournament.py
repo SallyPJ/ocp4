@@ -8,6 +8,25 @@ class Tournament:
                  end_date: str, number_of_rounds: int,
                  number_of_players: int, description=None,
                  rounds_completed=False, in_progress=False):
+        """
+        Initializes a Tournament object with the given details.
+
+        Args:
+            name (str): The name of the tournament.
+            location (str): The location where the tournament is held.
+            start_date (str): The start date of the tournament.
+            end_date (str): The end date of the tournament.
+            number_of_rounds (int): The total number of rounds in the tournament.
+            number_of_players (int): The number of players participating.
+            description (str) A brief description of the tournament. Defaults to None.
+            rounds_completed (bool, optional): Whether the tournament
+            has finished. Defaults to False.
+            in_progress (bool, optional): Whether the tournament is in progress.
+            Defaults to False.
+
+        Raises:
+            ValueError: If number_of_rounds or number_of_players is negative.
+        """
         self.reference = str(uuid.uuid4())
         self.name = name
         self.location = location
@@ -22,7 +41,13 @@ class Tournament:
         self.rounds = []
 
     def to_dict(self):
-        # Convert Tournament object to dictionary
+        """
+        Converts the Tournament instance to a dictionary representation.
+
+        Returns:
+            dict: A dictionary containing the tournament details,
+            including players and rounds.
+        """
         return {
             "reference": self.reference,
             "name": self.name,
@@ -41,7 +66,16 @@ class Tournament:
 
     @classmethod
     def from_dict(cls, data):
-        # Create Tournament object from dictionary, can return default value
+        """
+        Creates a Tournament object from a dictionary. This method also converts
+        player and round data from dictionaries into their respective objects.
+
+        Args:
+            data (dict): A dictionary containing the tournament data.
+
+        Returns:
+            Tournament: A Tournament instance created from the provided dictionary.
+        """
         tournament = cls(
             data.get("name", "Unknown"),
             data.get("location", "Unknown"),

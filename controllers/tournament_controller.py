@@ -104,7 +104,8 @@ class TournamentController:
         """
          Starts or resumes a tournament session.
 
-        This includes managing rounds, collecting feedback, and finalizing the tournament.
+        This includes managing rounds, collecting feedback,
+        and finalizing the tournament.
 
         Args:
             tournament (Tournament): The tournament instance to start or resume.
@@ -121,11 +122,12 @@ class TournamentController:
         """
         Manages the progress of tournament rounds, playing matches and updating scores.
 
-        Args:
             tournament (Tournament): The tournament instance to manage.
+        Args:
         """
         current_round_index = self.determine_current_round_index(tournament)
-        for round_number in range(current_round_index + 1, tournament.number_of_rounds + 1):
+        for round_number in range(current_round_index + 1,
+                                  tournament.number_of_rounds + 1):
             round_instance = self.get_round(tournament, round_number)
             self.play_round(round_instance, tournament)
             self.process_round_results(tournament, round_instance)
@@ -139,7 +141,8 @@ class TournamentController:
         Collects feedback from the user after a tournament has concluded.
 
         Args:
-            tournament (Tournament): The tournament instance for which feedback is collected.
+            tournament (Tournament): The tournament instance
+            for which feedback is collected.
 
         Returns:
             None
@@ -154,7 +157,8 @@ class TournamentController:
 
     def finalize_tournament(self, tournament):
         """
-        Finalizes the tournament by updating its status and saving its current state to the database.
+        Finalizes the tournament by updating its status and saving
+        its current state to the database.
 
         Args:
             tournament (Tournament): The tournament instance to finalize.
@@ -177,7 +181,8 @@ class TournamentController:
 
     def create_tournament(self):
         """
-        Creates a new tournament by collecting necessary details from the user.
+        Creates a new tournament by collecting
+        necessary details from the user.
 
         Returns:
             Tournament: The newly created Tournament instance.
@@ -185,7 +190,8 @@ class TournamentController:
         details = self.get_tournament_details()
         number_of_rounds = self.get_round_count()
         number_of_players = self.player_controller.get_player_count()
-        tournament = Tournament(*details, number_of_rounds, number_of_players)
+        tournament = Tournament(*details, number_of_rounds,
+                                number_of_players)
         self.assign_players_to_tournament(tournament)
         self.save_tournament(tournament)
         return tournament
@@ -195,21 +201,24 @@ class TournamentController:
         Selects and assigns players to the tournament.
 
         Args:
-            tournament (Tournament): The tournament instance to which players are assigned.
+            tournament (Tournament): The tournament instance
+            to which players are assigned.
 
         Returns:
             None
         """
         players = self.player_controller.display_sorted_players()
         while True:
-            selected_players = self.player_controller.select_multiple_players(players)
+            selected_players = self.player_controller.select_multiple_players(
+                players)
             if selected_players:
                 if len(selected_players) == tournament.number_of_players:
                     tournament.selected_players.extend(selected_players)
                     self.tournament_view.display_feedback("players_added")
                     break
                 else:
-                    self.tournament_view.display_feedback("incorrect_players_number", tournament)
+                    self.tournament_view.display_feedback(
+                        "incorrect_players_number", tournament)
                     selected_players.clear()
             else:
                 self.tournament_view.display_feedback("no_players_selected")
@@ -242,10 +251,12 @@ class TournamentController:
 
     def manage_tournament_rounds(self, tournament):
         """
-        Manages the rounds of the tournament, including playing matches and processing results.
+        Manages the rounds of the tournament, including playing matches
+        and processing results.
 
         Args:
-            tournament (Tournament): The tournament instance whose rounds are being managed.
+            tournament (Tournament): The tournament instance
+            whose rounds are being managed.
 
         Returns:
             None
@@ -256,10 +267,12 @@ class TournamentController:
 
     def determine_current_round_index(self, tournament):
         """
-        Determines the index of the current round to either resume or start a new round.
+        Determines the index of the current round to either resume
+        or start a new round.
 
         Args:
-            tournament (Tournament): The tournament instance whose round index is being determined.
+            tournament (Tournament): The tournament instance
+            whose round index is being determined.
 
         Returns:
             int: The index of the current round.
@@ -293,59 +306,71 @@ class TournamentController:
             # Tournament is not started if it's neither
             # in progress nor finished
             return [tournament for tournament in tournaments
-                    if not tournament.in_progress and not tournament.rounds_completed]
+                    if not tournament.in_progress
+                    and not tournament.rounds_completed]
         elif filter_status == "in_progress":
             return [tournament for tournament in tournaments
-                    if tournament.in_progress and not tournament.rounds_completed]
+                    if tournament.in_progress
+                    and not tournament.rounds_completed]
         elif filter_status == "finished":
             return [tournament for tournament in tournaments
-                    if tournament.rounds_completed and not tournament.in_progress]
+                    if tournament.rounds_completed
+                    and not tournament.in_progress]
         elif filter_status == "not_finished":
             return [tournament for tournament in tournaments
-                    if tournament.in_progress or (not tournament.rounds_completed
-                                                  and not tournament.in_progress)]
+                    if tournament.in_progress
+                    or (not tournament.rounds_completed and not tournament.in_progress)]
         else:
             raise ValueError(self.tournament_view.display_feedback("invalid_filter"))
 
     def display_tournaments_list(self, tournaments, filter_status=None):
         """
-        Prepares and displays the list of tournaments with optional filtering.
+        Prepares and displays the list of tournaments
+        with optional filtering.
 
         Args:
             tournaments (list): List of Tournament objects.
-            filter_status (str, optional): Status to filter the tournaments.
+            filter_status (str, optional): Status
+            to filter the tournaments.
 
         Returns:
             dict: A mapping of tournament indices to UUIDs.
         """
         if filter_status:
-            tournaments = self.filter_tournaments(tournaments, filter_status)
+            tournaments = self.filter_tournaments(tournaments,
+                                                  filter_status)
         if not tournaments:
-            self.tournament_view.display_no_tournaments_message()
+            self.tournament_view.display_feedback("filter_no_tournament")
             return {}
         tournaments_sorted = sorted(
-            tournaments, key=lambda t: self.date_utils.parse_date(t.start_date),
+            tournaments, key=lambda t: self.date_utils.parse_date(
+                t.start_date),
             reverse=True)
-        table, uuid_index_map = self.prepare_tournament_table(tournaments_sorted)
+        table, uuid_index_map = self.prepare_tournament_table(
+            tournaments_sorted)
         headers = ["No", "Nom", "Date de début", "Date de fin"]
         self.tournament_view.display_tournament_table(table, headers)
         return uuid_index_map
 
     def prepare_tournament_table(self, tournaments):
         """
-        Prepares the data structure for displaying the tournaments in a table.
+        Prepares the data structure for displaying
+        the tournaments in a table.
 
         Args:
             tournaments (list): List of Tournament objects.
 
         Returns:
-            tuple: A tuple containing the table data and a mapping of indices to UUIDs.
+            tuple: A tuple containing the table data and a
+            mapping of indices to UUIDs.
         """
         table = []
         uuid_index_map = {}
 
         for index, tournament in enumerate(tournaments):
-            table.append([index + 1, tournament.name, tournament.start_date, tournament.end_date])
+            table.append([index + 1, tournament.name,
+                          tournament.start_date,
+                          tournament.end_date])
             uuid_index_map[index + 1] = tournament.reference
 
         return table, uuid_index_map
@@ -359,11 +384,11 @@ class TournamentController:
         """
         name = self.tournament_view.get_tournament_name()
         location = self.tournament_view.get_tournament_location()
-        start_date = self.get_valid_date("début")
-        end_date = self.get_valid_date("fin")
+        start_date = self.get_valid_tournament_date("début")
+        end_date = self.get_valid_tournament_date("fin")
         return name, location, start_date, end_date
 
-    def get_valid_date(self, date_type):
+    def get_valid_tournament_date(self, date_type):
         """
         Validates the date entered by the user.
 
@@ -412,16 +437,17 @@ class TournamentController:
         if not round_instance.matches:
             round_instance.create_pairs()
             round_instance.matches = round_instance.pairs
-            self.database.save_tournament_update(tournament)
+            self.save_tournament_progress(tournament)
         for match in round_instance.matches:
             if not match.finished:
                 self.play_match(round_instance, match, tournament)
         round_instance.end_time = date_utils.get_current_datetime()
-        self.database.save_tournament_update(tournament)
+        self.save_tournament_progress(tournament)
 
     def get_next_match_number(self, round_instance):
         """
-        Determines the next match number based on the number of completed matches.
+        Determines the next match number based on
+        the number of completed matches.
 
         Args:
             round_instance (Round): The current round instance.
@@ -429,7 +455,8 @@ class TournamentController:
         Returns:
             int: The next match number.
         """
-        completed_matches = sum(1 for match in round_instance.matches if match.finished)
+        completed_matches = sum(1 for match in round_instance.matches
+                                if match.finished)
         return completed_matches + 1
 
     def play_match(self, round_instance, match, tournament):
@@ -447,10 +474,26 @@ class TournamentController:
             match.in_progress = True
             self.save_tournament_progress(tournament)
         match_number = self.get_next_match_number(round_instance)
-        self.tournament_view.display_match_details(round_instance, match, match_number)
+        self.tournament_view.display_match_details(
+            round_instance, match, match_number)
         result = self.tournament_view.prompt_for_match_result(match)
         self.tournament_view.update_match_score(match, result)
-        # Récupérer les informations des joueurs et scores
+        self.update_player_scores(match, tournament)
+        self.end_match(match, tournament)
+        self.tournament_view.display_match_end(match)
+
+    def update_player_scores(self, match, tournament):
+        """
+        Validate and update the total points for players
+        based on match results.
+
+        Args:
+            match (Match): The match instance containing player
+            and score information.
+            tournament (Tournament): The tournament instance
+            containing the selected players.
+        """
+        # Get player names and scores.
         player1_info, player2_info = match.match
         player1_first_name = player1_info[0].first_name
         player1_last_name = player1_info[0].last_name
@@ -459,17 +502,17 @@ class TournamentController:
         score1 = player1_info[1]
         score2 = player2_info[1]
 
-        # Trouver les objets Player correspondants dans selected_players du tournoi via prénom et nom
+        #  Find player's objects in selected_players list.
         player1 = next(player for player in tournament.selected_players
-                       if player.first_name == player1_first_name and player.last_name == player1_last_name)
+                       if player.first_name == player1_first_name
+                       and player.last_name == player1_last_name)
         player2 = next(player for player in tournament.selected_players
-                       if player.first_name == player2_first_name and player.last_name == player2_last_name)
+                       if player.first_name == player2_first_name
+                       and player.last_name == player2_last_name)
 
-        # Incrémenter les total_points des joueurs
+        # Add result to player's total points.
         player1.total_points += score1
         player2.total_points += score2
-        self.end_match(match, tournament)
-        self.tournament_view.display_match_end(match)
 
     def end_match(self, match, tournament):
         """
@@ -481,14 +524,16 @@ class TournamentController:
         """
         match.finished = True
         match.in_progress = False
-        self.database.save_tournament_update(tournament)
+        self.save_tournament_progress(tournament)
 
     def get_round_results(self, round_instance):
         return [pair.get_match_results() for pair in round_instance.pairs]
 
     def process_round_results(self, tournament, round_instance):
         """
-        Processes the results of all matches within a round.
+        This function retrieves the results of each match in the round,
+        finds the corresponding players based on the match results,
+        and updates their list of opponents.
 
         Args:
             tournament (Tournament): The tournament instance.
@@ -496,26 +541,32 @@ class TournamentController:
         """
         for match in round_instance.matches:
             results = match.get_match_results()
-            player1, player2 = self.get_players_from_results(tournament, results)
+            player1, player2 = self.get_players_from_results(
+                tournament, results)
             if not player1 or not player2:
-                print(f"Erreur: Impossible de trouver les joueurs pour le match {results}")
+                self.tournament_view.display_feedback(
+                    "no_players_found")
+                print(f"Erreur: Impossible de trouver les "
+                      f"joueurs pour le match {results}")
                 continue
-            # Ajouter les adversaires respectifs
             self.add_opponents(player1, player2)
 
     def get_players_from_results(self, tournament, results):
         """
-        Extracts player names from match results and retrieves the corresponding player objects.
+        Extracts player names from match results and retrieves
+        the corresponding player objects.
 
         Args:
             tournament (Tournament): The tournament instance.
             results (dict): The match results.
 
         Returns:
-            tuple: Player objects for the two players in the match, or (None, None) if not found.
+            tuple: Player objects for the two players in the match,
+            or (None, None) if not found.
         """
         try:
-            (player1_name, score1), (player2_name, score2) = list(results.items())
+            (player1_name, score1), (player2_name, score2) =\
+                list(results.items())
         except ValueError:
             print(f"Erreur dans le format du résultat du match: {results}")
             return None, None
@@ -537,7 +588,8 @@ class TournamentController:
             Player: The matching player, or None if not found.
         """
         return next((player for player in tournament.selected_players
-                     if f"{player.first_name} {player.last_name}" == player_name), None)
+                     if f"{player.first_name} {player.last_name}"
+                     == player_name), None)
 
     def add_opponents(self, player1, player2):
         """
@@ -572,7 +624,7 @@ class TournamentController:
                                is_first_round=is_first_round)
         round_instance.start_time = date_utils.get_current_datetime()
         tournament.rounds.append(round_instance)
-        self.database.save_tournament_update(tournament)
+        self.save_tournament_progress(tournament)
         return round_instance
 
     def display_tournament_report(self, tournament):
@@ -590,11 +642,13 @@ class TournamentController:
 
     def display_basic_tournament_details(self, tournament):
         """
-        Prepares and displays the basic details (name, location, start and end dates,
-        number of rounds, players number) of the tournament.
+        Prepares and displays the basic details (name, location,
+        start and end dates, number of rounds, players number)
+        of the tournament.
 
     Args:
-        tournament (Tournament): The tournament instance containing the details.
+        tournament (Tournament): The tournament instance
+        containing the details.
     """
         tournament_details = [
             ["Nom", tournament.name],
@@ -610,15 +664,19 @@ class TournamentController:
         Displays the players registered for the tournament.
 
         Args:
-            tournament (Tournament): The tournament instance with selected players.
+            tournament (Tournament): The tournament instance
+            with selected players.
         """
-        if hasattr(tournament, "selected_players") and tournament.selected_players:
-            players = sorted(tournament.selected_players, key=lambda player: player.last_name)
+        if (hasattr(tournament, "selected_players")
+                and tournament.selected_players):
+            players = sorted(tournament.selected_players,
+                             key=lambda player: player.last_name)
             player_table = [
-                [player.national_id, player.last_name, player.first_name, player.date_of_birth]
-                for player in players
+                [player.national_id, player.last_name, player.first_name,
+                 player.date_of_birth] for player in players
             ]
-            player_headers = ["Identifiant National", "Nom", "Prénom", "Date de naissance"]
+            player_headers = ["Identifiant National", "Nom", "Prénom",
+                              "Date de naissance"]
             self.tournament_view.display_players(player_table, player_headers)
         else:
             self.tournament_view.display_no_players_message(tournament.name)
@@ -628,22 +686,27 @@ class TournamentController:
         Displays the details of each round and the corresponding matches.
 
         Args:
-            tournament (Tournament): The tournament instance with rounds and matches.
+            tournament (Tournament): The tournament instance
+            with rounds and matches.
         """
         rounds_data = []
         for round in tournament.rounds:
             match_table = []
             for index, match in enumerate(round.matches, start=1):
-                player1_name = f"{match.match[0][0].first_name} {match.match[0][0].last_name}"
-                player2_name = f"{match.match[1][0].first_name} {match.match[1][0].last_name}"
+                player1_name = (f"{match.match[0][0].first_name} "
+                                f"{match.match[0][0].last_name}")
+                player2_name = (f"{match.match[1][0].first_name} "
+                                f"{match.match[1][0].last_name}")
                 player1_result = match.match[0][1]
                 player2_result = match.match[1][1]
-                match_table.append([f"Match {index}", player1_name, player1_result, player2_name, player2_result])
+                match_table.append([f"Match {index}", player1_name, player1_result,
+                                    player2_name, player2_result])
 
             round_info = {
                 'round_number': round.round_number,
                 'matches': match_table,
-                'headers': ["Match", "Joueur 1", "Résultat Joueur 1", "Joueur 2", "Résultat Joueur 2"],
+                'headers': ["Match", "Joueur 1", "Résultat Joueur 1", "Joueur 2",
+                            "Résultat Joueur 2"],
                 'start_time': round.start_time,
                 'end_time': round.end_time
             }
@@ -675,10 +738,12 @@ class TournamentController:
 
     def get_round_count(self, default_rounds: int = 4) -> int:
         """
-        Handles the logic for prompting and validating the number of rounds for a tournament.
+        Handles the logic for prompting and validating
+        the number of rounds for a tournament.
 
         Args:
-            default_rounds (int): The default number of rounds if no custom value is provided.
+            default_rounds (int): The default number of rounds
+            if no custom value is provided.
 
         Returns:
             int: The valid number of rounds for the tournament
@@ -688,7 +753,8 @@ class TournamentController:
             if choice == 'o':
                 while True:
                     try:
-                        number_of_rounds = int(self.tournament_view.prompt_for_round_count())
+                        number_of_rounds = int(self.tournament_view.
+                                               prompt_for_round_count())
                         if 1 <= number_of_rounds <= 30:
                             return number_of_rounds
                         else:
@@ -702,7 +768,7 @@ class TournamentController:
 
     def save_tournament(self, tournament):
         """
-        Saves the tournament to the database.
+        Encapsulates the logic to save the tournament to the database.
 
         Args:
             tournament (Tournament): The tournament instance to save.
