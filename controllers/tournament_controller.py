@@ -164,6 +164,7 @@ class TournamentController:
         """
         tournament.in_progress = False
         self.save_tournament_progress(tournament)
+
     def check_players_list(self):
         if not os.path.exists(self.database.PLAYERS_FILE):
             self.tournament_view.display_feedback("no_player_file")
