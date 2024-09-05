@@ -62,13 +62,6 @@ class Round:
         if "pairs" in data:
             round_instance.pairs = [Match.from_dict(match_data) for match_data in data["pairs"]]
 
-        # Update player total_points from the tournament
-        for match in round_instance.matches:
-            for player, score in match.match:
-                player_in_tournament = next((p for p in tournament.selected_players if p.id == player.id), None)
-                if player_in_tournament:
-                    player.total_points = player_in_tournament.total_points  # Mise à jour du score à partir du tournoi
-
         return round_instance
 
     def create_pairs(self):
@@ -91,7 +84,7 @@ class Round:
         for i in range(0, len(self.players), 2):
             if i + 1 < len(self.players):
                 self.pairs.append(Match(self.players[i],
-                                        self.players[i + 1], self.round_number))
+                                        self.players[i + 1]))
 
     def create_pairs_based_on_points(self):
         """
@@ -129,7 +122,7 @@ class Round:
             # Find the best opponent among the possible ones
             player2 = self.find_best_opponent(player1, possible_opponents)
             if player2:
-                match = Match(player1, player2, self.round_number)
+                match = Match(player1, player2)
                 self.pairs.append(match)
                 player1.add_opponent(player2)
                 player2.add_opponent(player1)

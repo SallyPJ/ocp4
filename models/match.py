@@ -11,7 +11,7 @@ class Match:
         finished (bool): A flag indicating whether the match has finished.
         in_progress (bool): A flag indicating whether the match is currently in progress.
     """
-    def __init__(self, player1, player2, round_number,
+    def __init__(self, player1, player2,
                  finished=False, in_progress=False):
         """
         Initialize a Match object with two players, the round number, and flags for status.
@@ -19,12 +19,10 @@ class Match:
         Args:
             player1 (Player): The first player in the match.
             player2 (Player): The second player in the match.
-            round_number (int): The round number in which the match occurs.
             finished (bool): Defaults to False. Indicates if the match is finished.
             in_progress (bool): Defaults to False. Indicates if the match is in progress.
         """
         self.match = ([player1, 0], [player2, 0])
-        self.round_number = round_number
         self.finished = finished
         self.in_progress = in_progress
 
@@ -41,7 +39,6 @@ class Match:
                             "first_name": player[0].first_name}, "score": player[1]}
                 for player in self.match
             ],
-            "round_number": self.round_number,
             "finished": self.finished,
             "in_progress": self.in_progress
         }
