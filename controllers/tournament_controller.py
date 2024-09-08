@@ -1,6 +1,7 @@
 from utils import date_utils
 import os
-from models.database import Database
+
+from models.player import Player
 from models.round import Round
 from models.tournament import Tournament
 from views.tournament_view import TournamentView
@@ -15,7 +16,6 @@ class TournamentController:
     def __init__(self):
         # Initialize tournament view, database, and player view
         self.date_utils = date_utils
-        self.database = Database()
         self.tournament_view = TournamentView()
         self.player_controller = PlayerController()
 
@@ -65,7 +65,7 @@ class TournamentController:
         Returns:
             None
         """
-        tournaments = self.database.load_tournaments()
+        tournaments = Tournament.load_tournaments()
         uuid_index_map = (self.display_tournaments_list
                           (tournaments, filter_status=filter_status))
         if not uuid_index_map:
@@ -170,10 +170,10 @@ class TournamentController:
         self.save_tournament_progress(tournament)
 
     def check_players_list(self):
-        if not os.path.exists(self.database.PLAYERS_FILE):
+        if not os.path.exists(Player.PLAYERS_FILE):
             self.tournament_view.display_feedback("no_player_file")
             return False
-        players = self.database.load_players()
+        players = Player.load_players()
         if len(players) < 2:
             self.tournament_view.display_feedback("not_enough_players")
             return False
@@ -724,7 +724,7 @@ class TournamentController:
             [f"{player.first_name} {player.last_name}", player.total_points]
             for player in tournament.selected_players
         ]
-        headers = ["Joueur", "Score total"]
+        headers = ["Joueurs", "Score total"]
         self.tournament_view.display_player_scores(table_data, headers)
 
     def display_tournament_description(self, tournament):
@@ -776,9 +776,9 @@ class TournamentController:
         Returns:
             None
         """
-        tournaments = self.database.load_tournaments()
+        tournaments = Tournament.load_tournaments()
         tournaments.append(tournament)
-        self.database.save_tournament(tournaments)
+        Tournament.save_tournament(tournaments)
 
     def save_tournament_progress(self, tournament):
         """
@@ -790,4 +790,4 @@ class TournamentController:
         Returns:
             None
         """
-        self.database.save_tournament_update(tournament)
+        Tournament.save_tournament_update(tournament)

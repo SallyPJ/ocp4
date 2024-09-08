@@ -1,9 +1,15 @@
 import uuid
+import os
+import json
+
 from models.round import Round
 from models.player import Player
 
 
 class Tournament:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    TOURNAMENTS_FILE = os.path.join(BASE_DIR, "data", "tournaments.json")
+
     def __init__(self, name: str, location: str, start_date: str,
                  end_date: str, number_of_rounds: int,
                  number_of_players: int, description=None,
@@ -94,3 +100,46 @@ class Tournament:
         tournament.rounds = [Round.from_dict(round_data, tournament)
                              for round_data in data.get("rounds", [])]
         return tournament
+
+    @staticmethod
+    def check_for_data_directory():
+        if not os.path.exists(os.path.dirname(Tournament.TOURNAMENTS_FILE)):
+            os.makedirs(os.path.dirname(Tournament.TOURNAMENTS_FILE))
+
+    @classmethod
+    def load_tournaments(cls):
+        cls.check_for_data_directory()
+        if not os.path.exists(cls.TOURNAMENTS_FILE):
+            return []
+        try:
+            with open(cls.TOURNAMENTS_FILE, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+                return [cls.from_dict(tournament) for tournament in data]
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"Erreur lors du chargement des tournois : {e}")
+            return []
+
+    @classmethod
+    def save_tournament(cls, tournaments):
+        cls.check_for_data_directory()
+        with open(cls.TOURNAMENTS_FILE, 'w', encoding='utf-8') as file:
+            json.dump([tournament.to_dict() for tournament in tournaments], file, ensure_ascii=False, indent=4)
+
+    @classmethod
+    def save_tournament_update(cls, updated_tournament):
+        """
+        Met à jour un tournoi existant dans le fichier JSON en fonction de la référence du tournoi.
+
+        Args:
+            updated_tournament (Tournament): Le tournoi à mettre à jour.
+
+        Raises:
+            ValueError: Si le tournoi avec la référence donnée n'est pas trouvé.
+        """
+        tournaments = cls.load_tournaments()
+        for i, tournament in enumerate(tournaments):
+            if tournament.reference == updated_tournament.reference:
+                tournaments[i] = updated_tournament
+                cls.save_tournament(tournaments)
+                return
+        raise ValueError(f"Le tournoi avec la référence {updated_tournament.reference} n'a pas été trouvé.")

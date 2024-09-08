@@ -1,5 +1,5 @@
 from utils import date_utils, text_utils
-from models.database import Database
+
 from models.player import Player
 from views.player_view import PlayerView
 
@@ -13,7 +13,6 @@ class PlayerController:
 
     def __init__(self):
         self.player_view = PlayerView()
-        self.database = Database()
 
     def run_player_menu(self):
         """
@@ -50,9 +49,9 @@ class PlayerController:
         try:
             last_name, first_name, birth_date, national_id = self.get_player_details()
             new_player = Player(last_name, first_name, birth_date, national_id)
-            players = self.database.load_players()
+            players = Player.load_players()
             players.append(new_player)
-            self.database.save_players(players)
+            Player.save_players(players)
             self.player_view.display_feedback("player_created")
         except ValueError as ve:
             self.player_view.display_feedback("invalid_player_data",
@@ -88,7 +87,7 @@ class PlayerController:
                 if self.confirm_players_selection(selected_players):
                     for player in selected_players:
                         players.remove(player)
-                    self.database.save_players(players)
+                    Player.save_players(players)
                     self.player_view.display_feedback("players_deleted",
                                                       selected_players)
                     break
@@ -200,7 +199,7 @@ class PlayerController:
         Exceptions:
             If no players are found, a message is displayed.
         """
-        players = sorted(self.database.load_players(),
+        players = sorted(Player.load_players(),
                          key=lambda player: player.last_name)
         return players
 
@@ -211,7 +210,7 @@ class PlayerController:
         Returns:
             int: The validated number of players.
         """
-        registered_players = self.database.load_players()
+        registered_players = Player.load_players()
         while True:
             user_input = self.player_view.prompt_for_player_count()
             try:

@@ -1,4 +1,6 @@
 import uuid
+import os
+import json
 
 
 class Player:
@@ -15,6 +17,9 @@ class Player:
         opponents (list): A list of opponents the player has faced.
         id (str): A unique identifier for the player.
     """
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    PLAYERS_FILE = os.path.join(BASE_DIR, "data", "players.json")
+
     def __init__(self, last_name, first_name, date_of_birth,
                  national_id, total_points=0):
         self.id = str(uuid.uuid4())
@@ -99,3 +104,25 @@ class Player:
            bool: True if the player has played against the opponent, False otherwise.
        """
         return opponent in self.opponents
+
+    @staticmethod
+    def check_for_data_directory():
+        if not os.path.exists(os.path.dirname(Player.PLAYERS_FILE)):
+            os.makedirs(os.path.dirname(Player.PLAYERS_FILE))
+
+    @classmethod
+    def load_players(cls):
+        cls.check_for_data_directory()
+        if not os.path.exists(cls.PLAYERS_FILE):
+            with open(cls.PLAYERS_FILE, 'w', encoding='utf-8') as file:
+                json.dump([], file)
+            return []
+        with open(cls.PLAYERS_FILE, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+            return [cls.from_dict(player) for player in data]
+
+    @classmethod
+    def save_players(cls, players):
+        cls.check_for_data_directory()
+        with open(cls.PLAYERS_FILE, 'w', encoding='utf-8') as file:
+            json.dump([player.to_dict() for player in players], file, ensure_ascii=False, indent=4)
