@@ -1,5 +1,3 @@
-from utils import date_utils, text_utils
-from models.database import Database
 from models.player import Player
 from views.player_view import PlayerView
 
@@ -13,7 +11,6 @@ class PlayerController:
 
     def __init__(self):
         self.player_view = PlayerView()
-        self.database = Database()
 
     def run_player_menu(self):
         """
@@ -50,9 +47,7 @@ class PlayerController:
         try:
             last_name, first_name, birth_date, national_id = self.get_player_details()
             new_player = Player(last_name, first_name, birth_date, national_id)
-            players = self.database.load_players()
-            players.append(new_player)
-            self.database.save_players(players)
+            Player.add_new_player(new_player)
             self.player_view.display_feedback("player_created")
         except ValueError as ve:
             self.player_view.display_feedback("invalid_player_data",
@@ -86,11 +81,9 @@ class PlayerController:
                     self.player_view.display_feedback("no_players_selected")
                     continue
                 if self.confirm_players_selection(selected_players):
-                    for player in selected_players:
-                        players.remove(player)
-                    self.database.save_players(players)
+                    Player.delete_players(players, selected_players)
                     self.player_view.display_feedback("players_deleted",
-                                                      selected_players)
+                                                      None, selected_players)
                     break
                 else:
                     continue
@@ -113,7 +106,7 @@ class PlayerController:
             an error message is displayed.
         """
         try:
-            players = self.sort_players_alphabetically()
+            players = Player.sort_players_alphabetically()
             if not players:
                 self.player_view.display_feedback("no_players")
                 return None
@@ -190,20 +183,6 @@ class PlayerController:
         else:
             self.player_view.display_feedback("invalid_option")  # Invalid option
 
-    def sort_players_alphabetically(self):
-        """
-        Sorts the list of players alphabetically by their last name.
-
-        Returns:
-            list: A sorted list of player objects.
-
-        Exceptions:
-            If no players are found, a message is displayed.
-        """
-        players = sorted(self.database.load_players(),
-                         key=lambda player: player.last_name)
-        return players
-
     def get_player_count(self):
         """
         Gets and validates the number of players from user input.
@@ -211,7 +190,7 @@ class PlayerController:
         Returns:
             int: The validated number of players.
         """
-        registered_players = self.database.load_players()
+        registered_players = Player.load_players()
         while True:
             user_input = self.player_view.prompt_for_player_count()
             try:
@@ -231,33 +210,45 @@ class PlayerController:
                 self.player_view.display_invalid_player_count_message("not_integer")
 
     def check_new_player_birthdate(self):
+        """
+        Collects and validates the player's birthdate.
+        """
         while True:
             date_of_birth = self.player_view.get_new_player_date_of_birth()
-            if not date_utils.validate_date(date_of_birth):
+            if not Player.validate_birthdate(date_of_birth):
                 self.player_view.display_feedback("invalid_birthdate")
             else:
                 return date_of_birth
 
     def check_new_player_national_id(self):
+        """
+        Collects and validates the player's national ID.
+        """
         while True:
             national_id = self.player_view.get_new_player_national_id()
-            if not text_utils.validate_national_id(national_id):
+            if not Player.validate_national_id(national_id):
                 self.player_view.display_feedback("invalid_national_id")
             else:
                 return national_id.upper()
 
     def check_new_player_last_name(self):
+        """
+        Collects and validates the player's last name.
+        """
         while True:
             last_name = self.player_view.get_new_player_last_name()
-            if last_name is None:
+            if not last_name:
                 self.player_view.display_feedback("empty_field")
             else:
                 return last_name.upper()
 
     def check_new_player_first_name(self):
+        """
+        Collects and validates the player's first name.
+        """
         while True:
             first_name = self.player_view.get_new_player_first_name()
-            if first_name is None:
+            if not first_name:
                 self.player_view.display_feedback("empty_field")
             else:
                 return first_name.capitalize()

@@ -99,3 +99,24 @@ class Match:
             f"{self.match[1][0].first_name} {self.match[1][0].last_name}":
                 self.match[1][1]
         }
+
+    def update_score(self, result):
+        """Updates the score of the match based on the result."""
+        if result == 1:
+            self.match[0][1] = 1
+            self.match[1][1] = 0
+        elif result == 2:
+            self.match[1][1] = 1
+            self.match[0][1] = 0
+        elif result == 3:
+            self.match[0][1] = 0.5
+            self.match[1][1] = 0.5
+
+    def mark_match_as_started(self):
+        """Mark the match as in progress."""
+        self.in_progress = True
+
+    def mark_match_as_finished(self):
+        """Marks the match as finished and stops its progress."""
+        self.finished = True
+        self.in_progress = False

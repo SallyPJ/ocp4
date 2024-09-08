@@ -21,7 +21,7 @@ class MainView:
         print("==========================================")
         print("1. Gestion des Joueurs")
         print("2. Gestion des Tournois")
-        print("3. Gestion des Données")
+        print("3. Gestion des Rapports")
         print("4. Quitter")
         print("==========================================")
         return input("Choisir une option: ")

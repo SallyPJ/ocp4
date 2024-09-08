@@ -2,8 +2,8 @@ from jinja2 import Environment, FileSystemLoader
 import os
 import webbrowser
 
+from models.tournament import Tournament
 from controllers.tournament_controller import TournamentController
-from models.database import Database
 from views.player_view import PlayerView
 from views.report_view import ReportView
 from views.tournament_view import TournamentView
@@ -21,7 +21,6 @@ class ReportController:
        and uses Jinja2 templates to format the reports.
     """
     def __init__(self):
-        self.database = Database()
         self.tournament_controller = TournamentController()
         self.report_view = ReportView()
         self.player_view = PlayerView()
@@ -54,7 +53,7 @@ class ReportController:
         and then opens the report in the default web browser.
         """
         try:
-            tournaments = self.database.load_tournaments()
+            tournaments = Tournament.load_tournaments()
             if not tournaments:
                 self.report_view.display_feedback("no_tournament")
                 return
