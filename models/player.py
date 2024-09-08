@@ -2,6 +2,8 @@ import uuid
 import os
 import json
 
+from utils import text_utils, date_utils
+
 
 class Player:
     """
@@ -107,11 +109,23 @@ class Player:
 
     @staticmethod
     def check_for_data_directory():
+        """
+        Ensures the data directory for storing player information exists.
+        If the directory doesn't exist, it is created.
+        """
         if not os.path.exists(os.path.dirname(Player.PLAYERS_FILE)):
             os.makedirs(os.path.dirname(Player.PLAYERS_FILE))
 
     @classmethod
     def load_players(cls):
+        """
+        Loads the list of players from the JSON file.
+
+        Returns:
+            list: A list of Player objects, or an empty list if no file is found.
+
+        If the file does not exist, it is created and an empty list is returned.
+        """
         cls.check_for_data_directory()
         if not os.path.exists(cls.PLAYERS_FILE):
             with open(cls.PLAYERS_FILE, 'w', encoding='utf-8') as file:
@@ -123,6 +137,104 @@ class Player:
 
     @classmethod
     def save_players(cls, players):
+        """
+        Saves the list of players to the JSON file.
+
+        Args:
+            players (list): A list of Player objects to be saved.
+
+        The data directory is created if it does not exist.
+        """
         cls.check_for_data_directory()
         with open(cls.PLAYERS_FILE, 'w', encoding='utf-8') as file:
-            json.dump([player.to_dict() for player in players], file, ensure_ascii=False, indent=4)
+            json.dump([player.to_dict() for player in players], file,
+                      ensure_ascii=False, indent=4)
+
+    @classmethod
+    def sort_players_alphabetically(cls):
+        """
+        Sorts the list of players alphabetically by their last name.
+
+        Returns:
+            list: A sorted list of player objects.
+
+        Exceptions:
+            If no players are found, a message is displayed.
+        """
+        players = sorted(Player.load_players(),
+                         key=lambda player: player.last_name)
+        return players
+
+    def update_player_total_points(self, score):
+        """
+        Updates the player's total points by adding the given score.
+
+        Args:
+            score (float): The score to add to the player's total points.
+        """
+        self.total_points += score
+
+    @classmethod
+    def players_file_exists(cls):
+        """Checks if the players file exists."""
+        return os.path.exists(cls.PLAYERS_FILE)
+
+    @classmethod
+    def has_enough_players(cls, min_players=2):
+        """Checks if there are enough players."""
+        players = cls.load_players()
+        return len(players) >= min_players
+
+    @classmethod
+    def add_new_player(cls, new_player):
+        """
+        Adds a new player to the player list and saves it to the database.
+
+        Args:
+            new_player (Player): The new player to add.
+
+        """
+        players = cls.load_players()
+        players.append(new_player)
+        cls.save_players(players)
+
+    @classmethod
+    def delete_players(cls, players, selected_players):
+        """
+        Deletes the selected players from the player list and saves the updated list.
+
+        Args:
+            players_to_delete (list): List of players to delete.
+
+        Raises:
+            IOError: If there is an error accessing the database.
+        """
+        for player in selected_players:
+            players.remove(player)
+        cls.save_players(players)
+
+    @staticmethod
+    def validate_national_id(national_id):
+        """
+        Validates the national ID format.
+
+        Args:
+            national_id (str): The national ID to validate.
+
+        Returns:
+            bool: True if the national ID is valid, False otherwise.
+        """
+        return text_utils.validate_national_id(national_id)
+
+    @staticmethod
+    def validate_birthdate(birthdate):
+        """
+        Validates the birthdate format.
+
+        Args:
+            birthdate (str): The birthdate to validate.
+
+        Returns:
+            bool: True if the birthdate is valid, False otherwise.
+        """
+        return date_utils.validate_date(birthdate)

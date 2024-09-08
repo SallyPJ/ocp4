@@ -2,6 +2,7 @@ import uuid
 import os
 import json
 
+from utils import date_utils
 from models.round import Round
 from models.player import Player
 
@@ -101,13 +102,47 @@ class Tournament:
                              for round_data in data.get("rounds", [])]
         return tournament
 
+    @classmethod
+    def create_tournament(cls, name, location, start_date, end_date,
+                          number_of_rounds, number_of_players):
+        """
+        Creates a new Tournament instance.
+
+        Args:
+            name (str): The name of the tournament.
+            location (str): The location of the tournament.
+            start_date (str): The start date of the tournament.
+            end_date (str): The end date of the tournament.
+            number_of_rounds (int): Number of rounds.
+            number_of_players (int): Number of players.
+
+        Returns:
+            Tournament: The created Tournament instance.
+        """
+        return cls(name, location, start_date, end_date, number_of_rounds,
+                   number_of_players)
+
     @staticmethod
     def check_for_data_directory():
+        """
+        Ensures the data directory for storing tournaments exists.
+        If the directory doesn't exist, it is created.
+        """
         if not os.path.exists(os.path.dirname(Tournament.TOURNAMENTS_FILE)):
             os.makedirs(os.path.dirname(Tournament.TOURNAMENTS_FILE))
 
     @classmethod
     def load_tournaments(cls):
+        """
+        Loads the list of tournaments from the JSON file.
+
+        Returns:
+            list: A list of Tournament objects, or an empty list if no file is found.
+
+        Exceptions:
+            Handles FileNotFoundError and JSONDecodeError,
+            returning an empty list on failure.
+        """
         cls.check_for_data_directory()
         if not os.path.exists(cls.TOURNAMENTS_FILE):
             return []
@@ -121,14 +156,24 @@ class Tournament:
 
     @classmethod
     def save_tournament(cls, tournaments):
+        """
+        Saves the list of tournaments to the JSON file.
+
+        Args:
+            tournaments (list): A list of Tournament objects to be saved.
+
+        The data directory is created if it does not exist.
+        """
         cls.check_for_data_directory()
         with open(cls.TOURNAMENTS_FILE, 'w', encoding='utf-8') as file:
-            json.dump([tournament.to_dict() for tournament in tournaments], file, ensure_ascii=False, indent=4)
+            json.dump([tournament.to_dict() for tournament in tournaments], file,
+                      ensure_ascii=False, indent=4)
 
     @classmethod
     def save_tournament_update(cls, updated_tournament):
         """
-        Met à jour un tournoi existant dans le fichier JSON en fonction de la référence du tournoi.
+        Met à jour un tournoi existant dans le fichier JSON
+        en fonction de la référence du tournoi.
 
         Args:
             updated_tournament (Tournament): Le tournoi à mettre à jour.
@@ -142,4 +187,68 @@ class Tournament:
                 tournaments[i] = updated_tournament
                 cls.save_tournament(tournaments)
                 return
-        raise ValueError(f"Le tournoi avec la référence {updated_tournament.reference} n'a pas été trouvé.")
+        raise ValueError(f"Le tournoi avec la référence "
+                         f"{updated_tournament.reference} n'a pas été trouvé.")
+
+    def assign_players(self, selected_players):
+        """
+        Adds the selected players to the tournament's list of participants.
+
+        Args:
+            selected_players (list): A list of Player objects to be added.
+        """
+        self.selected_players.extend(selected_players)
+
+    def update_description(self, feedback):
+        """
+        Updates the tournament description with the user feedback.
+
+        Args:
+            feedback (str): The feedback to be added to the tournament description.
+        """
+        if feedback.strip():
+            self.description = feedback
+
+    def finalize_tournament(self):
+        """
+        Finalizes the tournament by marking it as no longer in progress.
+        """
+        self.in_progress = False
+
+    def start_tournament(self):
+        """
+        Marks the tournament as in progress.
+        """
+        self.in_progress = True
+
+    def create_round(self, round_number):
+        """
+        Creates and starts a new round for the tournament.
+
+        Args:
+            round_number (int): The round number to create.
+
+        Returns:
+            Round: The created round instance.
+        """
+        is_first_round = (round_number == 1)
+        round_instance = Round(self, round_number=round_number,
+                               is_first_round=is_first_round)
+        round_instance.start_time = date_utils.get_current_datetime()
+        self.rounds.append(round_instance)
+        return round_instance
+
+    def find_player_by_name(self, first_name, last_name):
+        """
+        Finds a player in the tournament by their first and last name.
+
+        Args:
+            first_name (str): The player's first name.
+            last_name (str): The player's last name.
+
+        Returns:
+            Player: The found player object, or None if no match is found.
+        """
+        return next((player for player in self.selected_players
+                     if player.first_name == first_name
+                     and player.last_name == last_name), None)

@@ -107,7 +107,7 @@ class TournamentView(BaseView):
         return input("Entrez le numéro d'un ou plusieurs tournois "
                      "(séparés par une virgule): ")
 
-    def display_players_global_scores(self, tournament):
+    def display_players_total_points(self, tournament):
         """
         Displays the cumulative scores of players in the tournament.
 
@@ -202,19 +202,15 @@ class TournamentView(BaseView):
             except ValueError:
                 print("Entrée invalide, veuillez entrer un nombre entier.")
 
-    def update_match_score(self, match, result):
-        """Updates the score of the match based on the result."""
+    def display_match_result(self, match, result):
+        """Displays the result of the match based on the result."""
         if result == 1:
-            match.match[0][1] = 1
             print(f"\n✅  {match.match[0][0].first_name} "
                   f"{match.match[0][0].last_name} remporte la partie !\n")
         elif result == 2:
-            match.match[1][1] = 1
             print(f"\n✅  {match.match[1][0].first_name} "
                   f"{match.match[1][0].last_name} remporte la partie !\n")
         elif result == 3:
-            match.match[0][1] = 0.5
-            match.match[1][1] = 0.5
             print("\n🤝  La partie se termine par un match nul.\n")
 
     def display_match_end(self, match):
